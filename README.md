@@ -19,4 +19,8 @@ AIDA is a de novo implementation and extension of the MISTRAL myopic deconvoluti
 
 Although development and maintenance of AIDA has been minimal the past couple of years, this project site has been set up to revive these efforts and nurture community use and development.
 
-Stay tuned for improvements as we are able to get to them...
+With colleagues Franck Marchis and Clement Chalumeau at SETI, AIDA now runs independent of the Priithon platform (AIDA v1.4)
+
+With James Long, we have reinstituted FFTW3 capabilities, which leads to a 30% increase in speed.  This, along with a GUI interface for running the AIDA code will be forthcoming in AIDA v1.5.
+
+There are still bugs we are ferreting out to enable image input of TIFF files, and deconvolution of 3D image data, which was broken in previous code updates.  Please be patient!
