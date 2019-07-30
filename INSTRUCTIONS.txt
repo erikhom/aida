@@ -1,0 +1,15 @@
+Adaptive Image Deconvolution Algorithm (AIDA) Package
+=====================================================
+
+AIDA_1.41 version
+October 24, 2016
+by F. Marchis, SETI Institute (fmarchis@gmail.com)
+
+INSTRUCTIONS:
+Instructions:
+* Install Python 2.7/Anaconda on your computer
+* set up the AIDA_Settings.py 
+(image to deconvolve, psf file, type of deconvolution)
+* run AIDA using a command like (this is a Linux command line)
+~/anaconda/bin/python ~/AIDA1.4/AIDA.py -S ./AIDA_Settings.py
+

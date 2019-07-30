@@ -1,0 +1,5 @@
+Changelog for WIP
+
+* DetermineFileFormat in AGF:
+	Modified in order to handle tiff files
+	
