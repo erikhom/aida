@@ -1,0 +1,64 @@
+            Adaptive Image Deconvolution Algorithm (AIDA) Package
+                     Copyright and Licensing Information
+===============================================================================
+
+Copyright (c) 2007, The Regents of the University of California.
+
+All rights reserved.
+
+Permission to use, copy, modify, and distribute this software (in 
+source or binary code forms) for any purpose without fee is hereby 
+granted, provided that the above copyright notice, this paragraph 
+and the following paragraphs below appear in all copies of any 
+software which is or includes a copy or modification of this 
+software and in all copies of the supporting documentation for such 
+software.
+
+The names of the authors and the University of California may not be
+used to endorse or promote products derived from this software without
+specific prior written permission.  Permission to incorporate this 
+software into commercial products may be obtained by contacting:
+
+        Director, Office of Technology Management
+        University of California-San Francisco
+        1294 9th Avenue, Suite 1
+        San Francisco, CA 94143-1209 
+
+This software program and documentation are copyrighted by The Regents 
+of the University of California. The software program and documentation 
+are supplied "as is", without any accompanying services from The 
+Regents. The Regents does not warrant that the operation of the program 
+will be uninterrupted or error-free. The end-user understands that the 
+program was developed for research purposes and is advised not to rely 
+exclusively on the program for any reason.
+
+Use of this software in any form should cite this work as: 
+
+        E.F.Y. Hom, F. Marchis, T.K. Lee, S. Haase, D. Agard, and J.W. Sedat
+        (June 2007) "AIDA: An Adaptive Image Deconvolution Algorithm with 
+        Application to Multiframe and Three-Dimensional Data"
+        Journal of the Optical Society of America A, 24(6):1580-1600.
+
+
+IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY 
+FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, 
+INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS 
+DOCUMENTATION, EVEN IF THE UNIVERSITY OF CALIFORNIA HAS BEEN ADVISED OF 
+THE POSSIBILITY OF SUCH DAMAGE. THE UNIVERSITY OF CALIFORNIA 
+SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR 
+PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON AN "AS IS" BASIS, AND THE 
+UNIVERSITY OF CALIFORNIA HAS NO OBLIGATIONS TO PROVIDE MAINTENANCE, 
+SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+
+
+Questions?
+----------
+
+Questions on the specific use of AIDA may be directed to:
+  Erik F. Y. Hom (erik@mcb.harvard.edu or erik@freshboom.com) or to
+  Franck Marchis (fmarchis@gmail.com)
+
+
+General questions about this project may be directed to: 
+  Prof. John W. Sedat (sedat@msg.ucsf.edu), who supported and directed this work

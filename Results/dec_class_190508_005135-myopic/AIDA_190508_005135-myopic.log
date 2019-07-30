@@ -1,0 +1,372 @@
+
+================================================================================
+         <<< Adaptive Image Deconvolution Algorithm (AIDA) Package >>>
+                                       by
+    E.F.Y. Hom, F. Marchis, C. Chalumeau, T.K. Lee, S. Haase, D.A. Agard, and J.W. Sedat
+                 Copyright (c) 2006, University of California
+                 
+     ("AIDA: An Adaptive Image Deconvolution Algorithm with Application to
+   Multi-Frame and Three-Dimensional Data"  J. Opt. Soc. Amer. A., 24(6):1580-1600)
+   
+================================================================================
+
+		AIDA version: 1.4.1  [ September 15, 2016 ]
+		(code location: /Users/jameslong/AIDA3)
+
+###
+|	AIDA_190508_005135-myopic.log
+|	Dataset label: "dec_class"
+###
+
+SWIGed FFTW appears broken - use workaround module
+ ** using numpy_fft routines **
+
+
+AIDA Start Time: Wed May  8 00:51:35 2019
+
+  * processing decon specifications...
+  * setting up temporary working arrays...
+  * processing PSF data...
+#DEBUG: PSF negative after background subtraction
+#DEBUG: will do thesholding now -- yes or no ? yes
+#DEBUG: calling   ThresholdPSF_inplace
+#DEBUG: calling   ThresholdPSF_inplace
+
+  * converting to OTFs and processing data...
+  * processing background and noise settings...
+  * setting up optimization parameters...
+
+     Note: No gain in computation time for higher memory usage levels
+           for mono-frame decon with images in separate files
+           Memory usage level defaulted to zero
+
+  * ...done with setup 
+
+<<< Key User Input Variables >>>
+Results directory = /Users/jameslong/AIDA3/Results/dec_class_190508_005135-myopic/
+Deconvolution type = myopic
+Image file base = /Users/jameslong/AIDA3/titanhe_153_IF_scaled.fits
+PSF file base = /Users/jameslong/AIDA3/TitanImages/psf_titanhe_1.fits
+Spatial dimension of data = 2
+Sigma detector value = 5
+Results output format = f
+Computational precision = double
+-   -   -   -   -   -   -   -   -
+Initial object guess = zero 
+Object background subtraction = 0
+sigma_det = [5]  (input)
+Input object tolerance = 0.1
+Input PSF tolerance = 0.1
+object PCG iteration array = (1, 3, 5, 7, 9, 11, 13, 15)
+PSF PCG iteration array = (1, 3, 5, 7, 9, 11, 13, 15)
+Maximum uphill object moves allowed before breaking = 2
+Maximum uphill PSF moves allowed before breaking = 2
+Rising tolerance ratio between estimate steps = 1.03
+CCG object minimization tolerance = 1e-07
+CCG PSF minimization tolerance = 1e-07
+CCG object iterations per PCG block = 24
+CCG PSF iterations per PCG block = 24
+Number of sequential AIDA stop alerts before breaking = 2
+Maximum PCG stop signals before skipping optimization = 3
+Maximum uphill signals before skipping optimization = 3
+'lambda_object' will be calculated as:  1./ < sqrt(2 pi w(r))/theta - 1 >
+---
+Infolevel = 2
+Decon terms = (1, 1, 1, 0)
+Object derivative and Laplacian operator parameters:
+	gradient operator =  FC 	laplacian operator =  3 
+	gradient norm type = sqrt 	zero edges: False
+Variable lower bound for CCG = 0.0
+PSF processing parameters:
+	exclude_radius = 5
+	cleaning flags = (1, 1, 1, 1)
+	PSF centering = unknown
+	subtract PSF background percent = 0.0
+	clean nsigmas to subtract = 2.0
+	PSF percent threshold set to fill value = 1e-07
+	OTF percent threshold set to fill value = 1e-07
+	fill value = 0.0
+	floor for PSF constraint weight = 1e-12
+	floor for OTF constraint weight = 1e-12
+	radially averaged OTF constraint weight (dimensions): 0
+PSF files processed (and cleaned):
+		psf_titanhe_1.fits
+lambda_OTF Value = 3.81469726562e-06
+lambda_PSF Value = 1.0
+<<< -   -   -   -   -   -   - >>>
+
+Set-up time = 0.8924 secs 
+
+=======
+=======
+
+Deconvolution Start Time: Wed May  8 00:51:36 2019
+
+vvvvvvv
+[[  titanhe_153_IF_scaled.fits  ]] 	shape = (512, 512)
+sigma_det = 5
+w (mmms): 20790 (min), 25 (max), 827.86 (mean), 2636.7 (std)
+-------
+---
+Using pixel-based object regularization
+terms: (1, 1, 1, 0)
+lambda_object: 0.217156 (min), 0.217156 (max), 0.217156 (mean), 0 (std)  [adaptive]
+theta: 64.4825 (min), 2.23607 (max), 8.28736 (mean), 9.84336 (std)
+mu: 0.0434311 (min), 5.2226e-05 (max), 0.0124449 (mean), 0.0114213 (std)
+lambda_OTF: 3.8147e-06  [adaptive]
+lambda_PSF: 1  [adaptive]
+-------
+[obj] PCG iter: 1 of 1  in optimization round  1  out of  8 (max)
+<lambda_object>: 0.2171557    <mu>: 0.01244485    <theta>: 8.287362
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.35158
+	    obj diff:  711.183097316 	check_object = go
+DEBUG seb: TEMP is nan: False
+J = 1.37053e+07 	Jn: 1.34108e+07 	Jo: 294487 	Jhk: 0 	Jhr: 0
+ 		Jn: 1 		Jo: 0.021959 	Jhk: 0 	Jhr: 0
+-------
+[PSF] PCG iter: 1 of 1  in optimization round  1  out of  8 (max)
+Duration of last evaluation:  48.44307899475098 ms
+Mean:  48.44307899475098 ms
+nb_evals:  1
+<lambda_OTF>: 3.814697e-06    lambda_PSF: 1
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.66785
+	    PSF diff:  6.62245129277e-08 	check_PSF = go
+DEBUG seb: TEMP is nan: False
+J = 1.33522e+07 	Jn: 1.33024e+07 	Jo: 0 	Jhk: 49784 	Jhr: 0
+ 		Jn: 1 		Jo: 0 	Jhk: 0.00374249 	Jhr: 0
+-------
+[obj] PCG iter: 1 of 3  in optimization round  2  out of  8 (max)
+<lambda_object>: 0.2171557    <mu>: 0.01244485    <theta>: 8.287362
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.12226
+	    obj diff:  239.177615304 	check_object = go
+[obj] PCG iter: 2  of  3
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.06352
+	    obj diff:  132.942271457 	check_object = go
+[obj] PCG iter: 3  of  3
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 1.99393
+	    obj diff:  76.633773306 	check_object = go
+DEBUG seb: TEMP is nan: False
+J = 889513 	Jn: 629408 	Jo: 260105 	Jhk: 0 	Jhr: 0
+ 		Jn: 1 		Jo: 0.413253 	Jhk: 0 	Jhr: 0
+-------
+[PSF] PCG iter: 1 of 3  in optimization round  2  out of  8 (max)
+Duration of last evaluation:  49.92198944091797 ms
+Mean:  49.18253421783447 ms
+nb_evals:  2
+<lambda_OTF>: 3.814697e-06    lambda_PSF: 1
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.85002
+	    PSF diff:  1.41036324941e-07 	check_PSF = go
+[PSF] PCG iter: 2  of  3
+Duration of last evaluation:  48.77519607543945 ms
+Mean:  49.04675483703613 ms
+nb_evals:  3
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.73159
+	    PSF diff:  8.61336e-08 	check_PSF = go
+[PSF] PCG iter: 3  of  3
+Duration of last evaluation:  52.45184898376465 ms
+Mean:  49.89802837371826 ms
+nb_evals:  4
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.73529
+	    PSF diff:  7.17309e-08 	check_PSF = go
+DEBUG seb: TEMP is nan: False
+J = 599135 	Jn: 597823 	Jo: 0 	Jhk: 1311.41 	Jhr: 0
+ 		Jn: 1 		Jo: 0 	Jhk: 0.00219365 	Jhr: 0
+-------
+[obj] PCG iter: 1 of 5  in optimization round  3  out of  8 (max)
+<lambda_object>: 0.2171557    <mu>: 0.01244485    <theta>: 8.287362
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.13479
+	    obj diff:  20.9778079901 	check_object = go
+[obj] PCG iter: 2  of  5
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.165
+	    obj diff:  12.9030812067 	check_object = go
+[obj] PCG iter: 3  of  5
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.09949
+	    obj diff:  5.16259569033 	check_object = go
+[obj] PCG iter: 4  of  5
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.17534
+	    obj diff:  3.11887508132 	check_object = go
+[obj] PCG iter: 5  of  5
+	CG itns 13    istop 0    ifn 15    df0 0    Nclsrch 0    CGtime 2.24408
+	    obj diff:  1.66811054495 	check_object = go
+DEBUG seb: TEMP is nan: False
+J = 778966 	Jn: 509970 	Jo: 268996 	Jhk: 0 	Jhr: 0
+ 		Jn: 1 		Jo: 0.527473 	Jhk: 0 	Jhr: 0
+-------
+[PSF] PCG iter: 1 of 5  in optimization round  3  out of  8 (max)
+Duration of last evaluation:  52.90722846984863 ms
+Mean:  50.499868392944336 ms
+nb_evals:  5
+<lambda_OTF>: 3.814697e-06    lambda_PSF: 1
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.96415
+	    PSF diff:  9.46921359866e-08 	check_PSF = go
+[PSF] PCG iter: 2  of  5
+Duration of last evaluation:  51.12123489379883 ms
+Mean:  50.60342947642008 ms
+nb_evals:  6
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.79921
+	    PSF diff:  3.97174e-08 	check_PSF = go
+[PSF] PCG iter: 3  of  5
+Duration of last evaluation:  51.55301094055176 ms
+Mean:  50.73908397129604 ms
+nb_evals:  7
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.79532
+	    PSF diff:  6.42562e-08 	check_PSF = go
+[PSF] PCG iter: 4  of  5
+Duration of last evaluation:  48.85601997375488 ms
+Mean:  50.503700971603394 ms
+nb_evals:  8
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.77889
+	    PSF diff:  6.59328e-08 	check_PSF = go
+	    >> max rising test count encountered <<
+DEBUG seb: TEMP is nan: False
+J = 514447 	Jn: 514177 	Jo: 0 	Jhk: 270.572 	Jhr: 0
+ 		Jn: 1 		Jo: 0 	Jhk: 0.000526224 	Jhr: 0
+-------
+[obj] PCG iter: 1 of 7  in optimization round  4  out of  8 (max)
+<lambda_object>: 0.2171557    <mu>: 0.01244485    <theta>: 8.287362
+	CG itns 13    istop 0    ifn 99    df0 0    Nclsrch 0    CGtime 6.70908
+	    obj diff:  0.576667447296 	check_object = go
+[obj] PCG iter: 2  of  7
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.91168
+	    obj diff:  0.576667447296 	check_object = go
+[obj] PCG iter: 3  of  7
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.72457
+	    obj diff:  0.0 	check_object = stop
+[obj] PCG iter: 4  of  7
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.79818
+	    obj diff:  0.0 	check_object = stop
+		*** max object_stops reached ***
+DEBUG seb: TEMP is nan: False
+J = 783067 	Jn: 512832 	Jo: 270235 	Jhk: 0 	Jhr: 0
+ 		Jn: 1 		Jo: 0.526946 	Jhk: 0 	Jhr: 0
+-------
+[PSF] PCG iter: 1 of 7  in optimization round  4  out of  8 (max)
+Duration of last evaluation:  48.79474639892578 ms
+Mean:  50.31381713019477 ms
+nb_evals:  9
+<lambda_OTF>: 3.814697e-06    lambda_PSF: 1
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 2.12302
+	    PSF diff:  8.5634637633e-08 	check_PSF = go
+[PSF] PCG iter: 2  of  7
+Duration of last evaluation:  51.28812789916992 ms
+Mean:  50.411248207092285 ms
+nb_evals:  10
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.86594
+	    PSF diff:  3.93303e-08 	check_PSF = go
+[PSF] PCG iter: 3  of  7
+Duration of last evaluation:  51.96785926818848 ms
+Mean:  50.55275830355558 ms
+nb_evals:  11
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.82575
+	    PSF diff:  7.22127e-08 	check_PSF = go
+[PSF] PCG iter: 4  of  7
+Duration of last evaluation:  48.58207702636719 ms
+Mean:  50.38853486378988 ms
+nb_evals:  12
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.80324
+	    PSF diff:  6.5826e-08 	check_PSF = go
+	    >> max rising test count encountered <<
+DEBUG seb: TEMP is nan: False
+J = 520008 	Jn: 519835 	Jo: 0 	Jhk: 172.327 	Jhr: 0
+ 		Jn: 1 		Jo: 0 	Jhk: 0.000331503 	Jhr: 0
+-------
+[obj] PCG iter: 1 of 9  in optimization round  5  out of  8 (max)
+<lambda_object>: 0.2171557    <mu>: 0.01244485    <theta>: 8.287362
+	CG itns 13    istop 0    ifn 75    df0 0    Nclsrch 0    CGtime 5.27768
+	    obj diff:  1.87774437041 	check_object = go
+[obj] PCG iter: 2  of  9
+	CG itns 8    istop 0    ifn 53    df0 0    Nclsrch 0    CGtime 3.64766
+	    obj diff:  4.13100217691 	check_object = go
+[obj] PCG iter: 3  of  9
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.71708
+	    obj diff:  1.87774437041 	check_object = go
+[obj] PCG iter: 4  of  9
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.75806
+	    obj diff:  0.0 	check_object = stop
+[obj] PCG iter: 5  of  9
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.82982
+	    obj diff:  0.0 	check_object = stop
+		*** max object_stops reached ***
+DEBUG seb: TEMP is nan: False
+J = 783418 	Jn: 512245 	Jo: 271173 	Jhk: 0 	Jhr: 0
+ 		Jn: 1 		Jo: 0.529383 	Jhk: 0 	Jhr: 0
+-------
+[PSF] PCG iter: 1 of 9  in optimization round  5  out of  8 (max)
+Duration of last evaluation:  53.68494987487793 ms
+Mean:  50.64210524925819 ms
+nb_evals:  13
+<lambda_OTF>: 3.814697e-06    lambda_PSF: 1
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.95062
+	    PSF diff:  9.38485878014e-08 	check_PSF = go
+[PSF] PCG iter: 2  of  9
+Duration of last evaluation:  50.32992362976074 ms
+Mean:  50.619806562151226 ms
+nb_evals:  14
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.74266
+	    PSF diff:  3.64025e-08 	check_PSF = go
+[PSF] PCG iter: 3  of  9
+Duration of last evaluation:  50.21166801452637 ms
+Mean:  50.592597325642906 ms
+nb_evals:  15
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.73484
+	    PSF diff:  6.61703e-08 	check_PSF = go
+[PSF] PCG iter: 4  of  9
+Duration of last evaluation:  47.31583595275879 ms
+Mean:  50.38779973983765 ms
+nb_evals:  16
+	CG itns 13    istop 0    ifn 16    df0 0    Nclsrch 0    CGtime 1.70832
+	    PSF diff:  6.74839e-08 	check_PSF = go
+	    >> max rising test count encountered <<
+DEBUG seb: TEMP is nan: False
+J = 518695 	Jn: 518531 	Jo: 0 	Jhk: 163.895 	Jhr: 0
+ 		Jn: 1 		Jo: 0 	Jhk: 0.000316076 	Jhr: 0
+-------
+[obj] PCG iter: 1 of 11  in optimization round  6  out of  8 (max)
+<lambda_object>: 0.2171557    <mu>: 0.01244485    <theta>: 8.287362
+	CG itns 3    istop 0    ifn 48    df0 0    Nclsrch 0    CGtime 3.07874
+	    obj diff:  0.194646159318 	check_object = go
+[obj] PCG iter: 2  of  11
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.67633
+	    obj diff:  0.194646159318 	check_object = go
+[obj] PCG iter: 3  of  11
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.67917
+	    obj diff:  0.0 	check_object = stop
+[obj] PCG iter: 4  of  11
+	CG itns 0    istop 0    ifn 21    df0 0    Nclsrch 0    CGtime 1.67661
+	    obj diff:  0.0 	check_object = stop
+		*** max object_stops reached ***
+DEBUG seb: TEMP is nan: False
+J = 789624 	Jn: 517983 	Jo: 271641 	Jhk: 0 	Jhr: 0
+ 		Jn: 1 		Jo: 0.52442 	Jhk: 0 	Jhr: 0
+-------
+		>>> obj:: stop 	seq_stops: 3   seq_rising: 0   stops: 2 <<<
+		>>> PSF:: stop 	seq_stops: 0   seq_rising: 3   stops: 0 <<<
+-------
+J = 7.8962e+05		Jn: 5.1798e+05	Jo: 2.7164e+05	Jhk: 0 	Jhr: 0
+			Jn: 1 		Jo: 0.5244 	Jhk: 0 	Jhr: 0
+^^^^^^^
+
+<lambda_object>: 0.217156    <lambda_OTF>: 3.8147e-06    lambda_PSF: 1
+
+| total number of while-loop decon iterations:  5
+| total number of CG calls/iterations:  [154 208 362] (obj PSF tot)
+| total number of Cost Function calculations:  [599 256 855] (obj PSF tot)
+| total time of deconvolution:  1.384 mins 
+
+
+=======
+=======
+Total CG iterations = [154 208 362]
+Total Cost Function calculations = [599 256 855]
+Average CG iteration time: 
+	[ 0.3495 secs   0.1398 secs   0.229 secs ]  (obj PSF tot)
+Average CostFunction calculation time: 
+	[ 0.08986 secs   0.1136 secs   0.09696 secs ]  (obj PSF tot)
+---
+Total Set-up Time = 0.8924 secs 	( PSF Processing Time = 0.8388 secs )
+Total Deconvolutions = 1
+Total AIDA Deconvolution Time = 1.384 mins 
+Total Time for AIDA Run = 1.409 mins 
+====
+
+AIDA End Time: Wed May  8 00:53:00 2019
