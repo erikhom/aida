@@ -1,0 +1,17 @@
+Changelog for WIP
+
+* DetermineFileFormat in AGF:
+	Modified in order to handle tiff files
+
+* pyFFTW
+	fixed pyFFTW implementation in fftw_workaround.py
+    
+* Syntax errors
+	AIDA_Functions lines 1460-1461 incorrect dictionary syntax fixed
+	AIDA_Functions line 1895 
+        	'%.6g (std)' %U.mmms(1./Set.inv_w) to '%.6g (std) %U.mmms(1./Set.inv_w)'
+
+* Other errors
+	AIDA_Settings created imageHdr variable
+
+	
