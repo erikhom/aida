@@ -5,6 +5,7 @@ Code for the Adaptive Image Deconvolution Algorithm (AIDA) of Hom et al. (2007) 
 
 The Adaptive Image Deconvolution Algorithm (AIDA) package was developed mainly by Erik Hom (with invaluable help from Sebastian Haase, creator of Priithon, and Franck Marchis, Planetary Astronomer at SETI Institute & UC-Berkeley) while in John Sedat's lab at UCSF; details are described in J. Opt. Soc. Am. A 24:1580-1600 (2007).
 
+To contribute please read section Information about algorithm and citations
 
 # Getting Started 
 
@@ -39,6 +40,7 @@ either the text field or the browse buttons to add the image file, psf file, and
 name. If wishing to run AIDA with the default settings, then press run and wait for completion.
 You will know when the deconvolution is finished when the Graphical User Interface
 automatically closes.
+
 
 # Information About this algorithm:
 
