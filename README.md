@@ -7,18 +7,19 @@ The Adaptive Image Deconvolution Algorithm (AIDA) package was developed mainly b
 
 
 # Getting Started 
-In order to run AIDA, you must have some form of Python 3 installed.
-You must also have the following python libraries: numpy, pillow, astropy, scipy, r-fftw, cython, pip, gcc/libgcc, matplotlib
 
-Recommended to use anaconda environment control and import the provided environment.yml
-file using:
-conda env create -f environment.yml
-followed by:
+In order to run AIDA, you must have some form of Python 3 installed.You must also have the following python libraries: numpy, pillow, astropy, scipy, r-fftw, cython, pip, gcc/libgcc, matplotlib
 
-conda activate Python36
+ ### or
+
+Recommended to use anaconda environment control and import the provided environment.yml 
+file using: conda env create -f environment.yml
+followed by: conda activate Python36
 
 # Example Images
+![alt text](https://raw.githubusercontent.com/harshnagarkar/aida/master/example/jupiter.png? "Jupiter AIDA comparison")
 
+![alt text](https://raw.githubusercontent.com/harshnagarkar/aida/master/example/Uranus%20and%20jupiter.png "Uranus and Jupiter Deconvolved using AIDA")
 # Running the Program
 
 ### Using AIDA by Command Line
@@ -62,7 +63,9 @@ With James Long, we have reinstituted FFTW3 capabilities, which leads to a 30% i
 There are still bugs we are ferreting out to enable image input of TIFF files, and deconvolution of 3D image data, which was broken in previous code updates.  Please be patient!
 
 # Citations
+```
 For additional help please read this paper
 Hom, Erik F. Y., et al. “AIDA: an Adaptive Image Deconvolution Algorithm with Application to
 Multi-Frame and Three-Dimensional Data.” Journal of the Optical Society of America A,
 vol. 24, no. 6, 2007, p. 1580., doi:10.1364/josaa.24.001580.
+```
