@@ -6,7 +6,7 @@ Code for the Adaptive Image Deconvolution Algorithm (AIDA) of Hom et al. (2007) 
 The Adaptive Image Deconvolution Algorithm (AIDA) package was developed mainly by Erik Hom (with invaluable help from Sebastian Haase, creator of Priithon, and Franck Marchis, Planetary Astronomer at SETI Institute & UC-Berkeley) while in John Sedat's lab at UCSF; details are described in J. Opt. Soc. Am. A 24:1580-1600 (2007).
 
 
-#Getting Started 
+# Getting Started 
 In order to run AIDA, you must have some form of Python 3 installed.
 You must also have the following python libraries: numpy, pillow, astropy, scipy, r-fftw, cython, pip, gcc/libgcc, matplotlib
 
@@ -17,11 +17,11 @@ followed by:
 
 conda activate Python36
 
-#Example Images
+# Example Images
 
-#Running the Program
+# Running the Program
 
-Using AIDA by Command Line
+### Using AIDA by Command Line
 
 Running through AIDA.py:
 Before launching AIDA.py, open AIDA_Settings.py in a text editor. Change any settings to the
@@ -30,7 +30,7 @@ left as the default values. (For new users, it is recommended not to adjust othe
 launch AIDA.py and wait for the deconvolution to end.
 
 
-Using AIDA by GUI
+### Using AIDA by GUI
 
 Running through AIDA_app.py (Recommended):
 Simply launch AIDA_app.py to have the AIDA Graphical User Interface appear. You may use
@@ -39,7 +39,7 @@ name. If wishing to run AIDA with the default settings, then press run and wait 
 You will know when the deconvolution is finished when the Graphical User Interface
 automatically closes.
 
-#Information About this algorithm:
+# Information About this algorithm:
 
 AIDA is a de novo implementation and extension of the MISTRAL myopic deconvolution method developed by Mugnier et al. (2004) (see J. Opt. Soc. Am. A 21:1841-1854). The MISTRAL approach, used thus far to process astronomical images, has been shown to yield object reconstructions with excellent edge preservation and photometric precision. AIDA improves upon the original MISTRAL implementation in the following ways:
 
@@ -61,7 +61,7 @@ With James Long, we have reinstituted FFTW3 capabilities, which leads to a 30% i
 
 There are still bugs we are ferreting out to enable image input of TIFF files, and deconvolution of 3D image data, which was broken in previous code updates.  Please be patient!
 
-#Citations
+# Citations
 For additional help please read this paper
 Hom, Erik F. Y., et al. “AIDA: an Adaptive Image Deconvolution Algorithm with Application to
 Multi-Frame and Three-Dimensional Data.” Journal of the Optical Society of America A,
