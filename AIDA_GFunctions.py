@@ -17,12 +17,12 @@
 
 # from Priithon.all import U
 # Used from priithon:
-#  - N (numpy)
+#  - np (numpy)
 #  - U (useful) [ nb , findMax, max2d, fitGaussian, fitPoly, histogram, 
 #                 generalhistogram, saveImg, saveImg_seq, findMin ]
 #  - F (fftfuncs) : noiseArr
 #  - Mrc
-import numpy as N
+import numpy as np
 from Priithon_heritage import useful as U
 from Priithon_heritage import fftfuncs as F
 from Priithon_heritage import Mrc
@@ -41,18 +41,17 @@ from astropy.io.fits.hdu.image import PrimaryHDU
 
 
 
-#######  CLASS: N_random_array  #######
-####    [checked]
 class N_random_array:
+    @staticmethod
     def normal(mean, std, shape):
-        return N.random.normal(mean,std,shape)
+        return np.random.normal(mean,std,shape)
+
+    @staticmethod
     def poisson(mean, shape=1):
-        return N.random.poisson(mean,shape)
-####
+        return np.random.poisson(mean,shape)
 
 
-#######  FUNCTION: PrintTime  #######
-####    [checked]
+
 def PrintTime(timeinseconds, denominator=1.): # used in 'AIDA_Functions.py'
     """
     Prints 'timeinseconds' in secs, mins, or hrs, whichever is the most
@@ -82,7 +81,7 @@ def PrintTime(timeinseconds, denominator=1.): # used in 'AIDA_Functions.py'
 #######  FUNCTION: CalculateImageData  #######
 ####    [checked]
 def CalculateImageData(image, background=0., sigma_det=None, wiener=None,
-        dtype=N.float64): # used in 'AIDA_Functions.py'
+        dtype=np.float64): # used in 'AIDA_Functions.py'
     """
     Returns 'background' subtracted 'image' along with 'inv_w' 
     (inverse of weights), 'sigma_det' (Gaussian std of detector noise),
@@ -114,7 +113,7 @@ def CalculateImageData(image, background=0., sigma_det=None, wiener=None,
 
 #######  FUNCTION: ImageNoiseWeights  #######
 ####    [checked]
-def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=N.float64):
+def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=np.float64):
         
     """
     Computes the weights, w(r), for use in calculating the data fidelity
@@ -128,7 +127,7 @@ def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=N.float64):
     'sigma_det' is the standard deviation for the Gaussian readout noise
 
     Returns:
-    ((1./w).astype(dtype), N.sqrt(sigma_det2))
+    ((1./w).astype(dtype), np.sqrt(sigma_det2))
     """
 
     if sigma_det:
@@ -136,7 +135,7 @@ def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=N.float64):
         sigma_det2 = sigma_det*sigma_det
     else:
 
-        neg_pixels = N.extract(N.less_equal(image, baseline), image) - \
+        neg_pixels = np.extract(np.less_equal(image, baseline), image) - \
                 baseline
 
         if len(neg_pixels) < 2:
@@ -148,8 +147,8 @@ def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=N.float64):
             
         mean_neg_pixels = neg_pixels.mean()
         ## sigma_det2 is the (constant) gaussian detection error/pixel
-        ## from formula sigma_det**2 = 0.5*N.pi*(noise.mean())**2
-        sigma_det2 = 0.5*N.pi*(mean_neg_pixels*mean_neg_pixels)
+        ## from formula sigma_det**2 = 0.5*np.pi*(noise.mean())**2
+        sigma_det2 = 0.5*np.pi*(mean_neg_pixels*mean_neg_pixels)
 
 ### EHom (20130625): this is a mistake in the JOSA A paper and is not correct.
 ### sigma_det2 simply must be positive given the quantal nature of detection, and so
@@ -158,15 +157,15 @@ def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=N.float64):
 ### Thus, sigma_det must be > 1/(2*pi) and sigma_det2 must be > (1/2*pi)**2
 
 ### Old code:
-    if sigma_det2 < (N.pi / 2.):
+    if sigma_det2 < (np.pi / 2.):
    
-        message = "\n\nWarning: sigma_det is " + str(N.sqrt(sigma_det2)) + ", which is below the " + \
+        message = "\n\nWarning: sigma_det is " + str(np.sqrt(sigma_det2)) + ", which is below the " + \
                   "theoretical limit of sqrt(pi/2)!\nResetting to theoretical limit...\n\n"
         print(message)
        
-        sigma_det2 = N.pi / 2.
+        sigma_det2 = np.pi / 2.
 ### New code:
-#     sigma_det2_mintheory = (2.*N.pi)**(-2)   # this value is 0.0253302959106,
+#     sigma_det2_mintheory = (2.*np.pi)**(-2)   # this value is 0.0253302959106,
 #                                              # i.e., sigma_det_mintheory = 0.159154943092
 #                                              # Equivalence of Eq. (30) in Hom et al. works for 
 #                                              # lambda_object ~< 10, which means
@@ -179,22 +178,22 @@ def ImageNoiseWeights(image, baseline=0., sigma_det=None, dtype=N.float64):
 #                                              
 #     if sigma_det2 <= sigma_det2_mintheory:
 #     
-#         message = "\n\nWarning: sigma_det is " + str(N.sqrt(sigma_det2)) + ", which is below the " + \
+#         message = "\n\nWarning: sigma_det is " + str(np.sqrt(sigma_det2)) + ", which is below the " + \
 #                   "theoretical limit of (1/2*pi)+epsilon!\nResetting to theoretical limit...\n\n"
 #         print message
 #         
 #         sigma_det2 = sigma_det2_mintheory + 0.001   # value should be greater than minimum or lambda_object will explode
         
 
-    sigma_photon2 = N.maximum(image-baseline, 0.)
+    sigma_photon2 = np.maximum(image-baseline, 0.)
     w = sigma_det2 + sigma_photon2
 
     if w.min() == 0:
 
-        w_min = (N.extract(sigma_photon2 > 0, sigma_photon2)).min()
-        w = N.where(w==0, w_min, w)
+        w_min = (np.extract(sigma_photon2 > 0, sigma_photon2)).min()
+        w = np.where(w==0, w_min, w)
 
-    return ((1./w).astype(dtype), N.sqrt(sigma_det2))
+    return ((1./w).astype(dtype), np.sqrt(sigma_det2))
 ####
 
 
@@ -209,13 +208,13 @@ def UpdateWeights(noiseless_image, sigma_det):  # not used...
     Returns: (1./w)
     """
 
-    sigma_photon2 = N.maximum(noiseless_image, 0.)
+    sigma_photon2 = np.maximum(noiseless_image, 0.)
     w = sigma_det*sigma_det + sigma_photon2
 
     if w.min() == 0:
 
-        w_min = (N.extract(sigma_photon2 > 0, sigma_photon2)).min()
-        w = N.where(w==0, w_min, w)
+        w_min = (np.extract(sigma_photon2 > 0, sigma_photon2)).min()
+        w = np.where(w==0, w_min, w)
 
     return (1./w)
 ####
@@ -225,7 +224,7 @@ def UpdateWeights(noiseless_image, sigma_det):  # not used...
 ####    [checked]
 def WienerWeight(dark_image, object):   
     """
-    Returns the Wiener filter weight parameter (as N.float64) for use
+    Returns the Wiener filter weight parameter (as np.float64) for use
     in the function 'WienerFilter':
     
     weight = <||NOISE||^2> / <||OBJECT||^2>, which is
@@ -245,22 +244,22 @@ def WienerWeight(dark_image, object):
 
     if type(dark_image) in (float,int):
     
-       dark_image = F.noiseArr(shape=shape, stddev=dark_image, mean=0.0, dtype=N.float32)
+       dark_image = F.noiseArr(shape=shape, stddev=dark_image, mean=0.0, dtype=np.float32)
     
-    elif isinstance(dark_image,N.ndarray):
+    elif isinstance(dark_image,np.ndarray):
     
-        dark_image = (dark_image - dark_image.mean()).astype(N.float32)
+        dark_image = (dark_image - dark_image.mean()).astype(np.float32)
     else:
     
         message = "\n'dark_image' must be a number or an array!"
         raise ValueError(message)
 
-    OBJECT = N.empty(shape=shape, dtype=N.complex64)
-    NOISE = N.empty(shape=shape, dtype=N.complex64)
-    fftw.rfft(a=object.astype(N.float32), af=OBJECT, inplace=False)
+    OBJECT = np.empty(shape=shape, dtype=np.complex64)
+    NOISE = np.empty(shape=shape, dtype=np.complex64)
+    fftw.rfft(a=object.astype(np.float32), af=OBJECT, inplace=False)
     fftw.rfft(a=dark_image, af=NOISE, inplace=False)
-    absNOISE = N.abs(NOISE)
-    absOBJECT = N.abs(OBJECT)
+    absNOISE = np.abs(NOISE)
+    absOBJECT = np.abs(OBJECT)
 
 
     ## returns the ratio of the noise:image power spectral densities
@@ -272,7 +271,7 @@ def WienerWeight(dark_image, object):
 ####    
 def ProcessPSF(PSF, cropshape=None, center=None, exclude_radius=5, 
         clean=(1,1,1,1), background_percent=0., nsigmas=2.,
-        threshold_percent=1e-3, fill=0., dtype=N.float64):
+        threshold_percent=1e-3, fill=0., dtype=np.float64):
     """
     Returns a cleaned, centered, resized PSF for use in AIDA given a raw PSF
     """
@@ -303,7 +302,7 @@ def ProcessPSF(PSF, cropshape=None, center=None, exclude_radius=5,
             cropshape=cropshape, center=new_center, condition='1', fill=fill) #@
 
     ## clean-up the PSF image
-    if N.sum(clean):
+    if np.sum(clean):
     
          tempPSF[:] = CleanPSF(PSF=tempPSF, clean=clean, center=new_center, 
                 exclude_radius=exclude_radius, delta=0.3, 
@@ -321,19 +320,19 @@ def ProcessPSF(PSF, cropshape=None, center=None, exclude_radius=5,
 
     
     #Clement: shift workaround
-        tempPSF = U.shift2D_workaround(tempPSF.copy(),-N.array(new_center))
+        tempPSF = U.shift2D_workaround(tempPSF.copy(),-np.array(new_center))
          
-#         U.nd.shift(tempPSF.copy(), shift=-N.array(new_center), output=tempPSF, 
+#         U.nd.shift(tempPSF.copy(), shift=-np.array(new_center), output=tempPSF, 
 #                 order=5, mode="wrap")
 #         
 
-        ##  N.B.  Multiplying cOTF by PhaseShift function leads to "cross-hair"
+        ##  np.B.  Multiplying cOTF by PhaseShift function leads to "cross-hair"
         ##  FT boundary artifacts; therefore, resorted to U.nd.shift operation 
         ##  with spline interpolation instead
 
         ## re-threshold PSF after centering to origin to prevent non-negative
         ## values
-        if N.sum(clean[-2:]):
+        if np.sum(clean[-2:]):
     
              tempPSF[:] = CleanPSF(PSF=tempPSF, clean=(0,0)+clean[-2:], 
                     center=None, exclude_radius=exclude_radius, delta=0.3, 
@@ -364,7 +363,7 @@ def LocatePSFcenter(PSF, xyCentroidSize=None):
     """
 
     center = FindPSFcentroid(PSF, xyCentroidSize=None) #@
-    pixel_center = tuple(N.around(center).astype(N.int32))
+    pixel_center = tuple(np.around(center).astype(np.int32))
 
     return (center, pixel_center)
 ####
@@ -399,13 +398,13 @@ def FindPSFcentroid(PSF, xyCentroidSize=None):
     
         (junk, junk, y0, x0) = U.findMax(PSF)
 
-        percentage = xyCentroidSize**2. / N.product(PSF.shape[-2:]) * 100
+        percentage = xyCentroidSize**2. / np.product(PSF.shape[-2:]) * 100
         #U.DEBUG_HERE()
         #print "#DEBUG:", percentage
         #PSF.tofile("seb_PSF")
         #import cPickle
         #cPickle.dump(PSF, file('seb_PSF', 'w'), 2)
-        #levelAtRim = U.topPercentile(N.around(PSF).astype(N.int32), 
+        #levelAtRim = U.topPercentile(np.around(PSF).astype(np.int32), 
         #        percentage)
         #print "#DEBUG:      ", levelAtRim
         # workaround for broken Priithon's U.topPercentile
@@ -415,7 +414,7 @@ def FindPSFcentroid(PSF, xyCentroidSize=None):
         
         if yxC == (0,0):
         
-            return N.asarray((0,0))
+            return np.asarray((0,0))
         else:
         
             return CentroidOverSquare(array=PSF, center=yxC, 
@@ -428,7 +427,7 @@ def FindPSFcentroid(PSF, xyCentroidSize=None):
 
         (PSFmax, junk, junk, z0) = U.findMax(zprofile)      
         zprofile_baseline = U__topPercentile(zprofile, 99)             ## value of 99%
-        FWHM = len(N.where(zprofile > (PSFmax/2))[0])/2    ## FWHM/2
+        FWHM = len(np.where(zprofile > (PSFmax/2))[0])/2    ## FWHM/2
 
         #fit = U.fitGaussian1D((z0, FWHM, PSFmax - zprofile_baseline), 
         #        zprofile - zprofile_baseline)
@@ -443,7 +442,7 @@ def FindPSFcentroid(PSF, xyCentroidSize=None):
 
         (junk, junk, y0, x0) = U.findMax(PSF[za])
 
-        percentage = xyCentroidSize**2. / N.product(PSF.shape[-2:]) * 100
+        percentage = xyCentroidSize**2. / np.product(PSF.shape[-2:]) * 100
         levelAtRim = U__topPercentile(PSF[za:za+2],
                                       percentage)
 
@@ -495,17 +494,17 @@ def CentroidOverSquare(array, center=None, size=None, background_threshold=0):
     
     if center is None:
     
-        center = N.array(array.shape)/2
+        center = np.array(array.shape)/2
     else:
 
-        center = N.asarray(center)
+        center = np.asarray(center)
 
     if size is None:
     
         size = center.copy()
     else:
     
-        size = N.asarray(size)
+        size = np.asarray(size)
                 
     if center.ndim == 0:
 
@@ -513,7 +512,7 @@ def CentroidOverSquare(array, center=None, size=None, background_threshold=0):
     if len(center) < array.ndim:
 
         #seb center.resize(array.ndim)
-        center = N.resize(center, array.ndim)
+        center = np.resize(center, array.ndim)
     
     if size.ndim == 0:
 
@@ -521,7 +520,7 @@ def CentroidOverSquare(array, center=None, size=None, background_threshold=0):
         
     if len(size) < array.ndim:
         #seb size.resize(array.ndim)
-        size = N.resize(size, array.ndim)
+        size = np.resize(size, array.ndim)
     for s in size:
         
         if IsEven(s): #@
@@ -536,11 +535,11 @@ def CentroidOverSquare(array, center=None, size=None, background_threshold=0):
     for i in range(array.ndim):
 
         array = array[lower[i]:upper[i]]
-        array = N.transpose(array, [array.ndim-1] + list(range(array.ndim-1)))
+        array = np.transpose(array, [array.ndim-1] + list(range(array.ndim-1)))
 
     #array = U.thrsh(array, min=background_threshold, force0Base=1)
-    #settings = N.seterr(all = "print")
-    array = N.where(  array > background_threshold, array-background_threshold, 0   )
+    #settings = np.seterr(all = "print")
+    array = np.where(  array > background_threshold, array-background_threshold, 0   )
     relative_center = U.nd.center_of_mass(array)
 
     return tuple(center + relative_center - (size - 1)/2)
@@ -563,17 +562,17 @@ def ConditionalResizePSF(PSF, cropshape, center, condition, fill=0.):
     """
     
     if type(center) not in (int, float) and \
-           not isinstance(center,  N.number) : #seb
+           not isinstance(center,  np.number) : #seb
     
             pixel_center = center
     else:
     
-        pixel_center = tuple(N.around(center).astype(N.int32))
+        pixel_center = tuple(np.around(center).astype(np.int32))
 
     ## first condition, PSF is bigger than cropshape
     ## second condition, PSF is smaller than cropshape
-    if (condition == '1' and N.product(PSF.shape) > N.product(cropshape)) or \
-            (condition == '2' and N.product(PSF.shape) < N.product(cropshape)):
+    if (condition == '1' and np.product(PSF.shape) > np.product(cropshape)) or \
+            (condition == '2' and np.product(PSF.shape) < np.product(cropshape)):
 
         tempPSF = ResizePSF(PSF=PSF, new_shape=cropshape, 
                     pixel_center=pixel_center, fill=fill) #@
@@ -607,7 +606,7 @@ def ResizePSF(PSF, new_shape, pixel_center=None, fill=0.):
     (4) A new PSF array is returned that matches 'new_shape'
     """
 
-    PSF.shape = tuple(N.compress(N.array(PSF.shape) > 1, PSF.shape))
+    PSF.shape = tuple(np.compress(np.array(PSF.shape) > 1, PSF.shape))
     oldshape = PSF.shape
 
     if len(oldshape) != len(new_shape):
@@ -615,23 +614,23 @@ def ResizePSF(PSF, new_shape, pixel_center=None, fill=0.):
         message = "\n'new_shape' dimension does now match PSF input!"
         raise ValueError(message)   
 
-    array_center = tuple(N.floor(N.array(oldshape)/2.))
-    tempPSF = N.empty(shape=oldshape, dtype=PSF.dtype)
-    loweroffset = N.abs(N.floor((N.array(oldshape) - \
-            N.array(new_shape))/2.).astype(N.int))
-    upperoffset = N.abs(N.floor((N.array(new_shape) - \
-            N.array(PSF.shape))/2.).astype(N.int))
+    array_center = tuple(np.floor(np.array(oldshape)/2.))
+    tempPSF = np.empty(shape=oldshape, dtype=PSF.dtype)
+    loweroffset = np.abs(np.floor((np.array(oldshape) - \
+            np.array(new_shape))/2.).astype(np.int))
+    upperoffset = np.abs(np.floor((np.array(new_shape) - \
+            np.array(PSF.shape))/2.).astype(np.int))
 
     if pixel_center is None:        # estimate center (in pixels) based on 
                                     # centroid approach 
         if len(new_shape) == 2:
 
-            pixel_center = (ycenter, xcenter) = tuple(N.around(
-                    FindPSFcentroid(PSF, xyCentroidSize=None)).astype(N.int32))
+            pixel_center = (ycenter, xcenter) = tuple(np.around(
+                    FindPSFcentroid(PSF, xyCentroidSize=None)).astype(np.int32))
         else:
         
-            pixel_center = (zcenter, ycenter, xcenter) = tuple(N.around(
-                    FindPSFcentroid(PSF, xyCentroidSize=None)).astype(N.int32))
+            pixel_center = (zcenter, ycenter, xcenter) = tuple(np.around(
+                    FindPSFcentroid(PSF, xyCentroidSize=None)).astype(np.int32))
     
     elif type(pixel_center) is not bytes:    # i.e. 'origin' or
                                                         # 'array_center'
@@ -651,7 +650,7 @@ def ResizePSF(PSF, new_shape, pixel_center=None, fill=0.):
         pixel_center = 'origin' 
     else:
         # shift to array_center based on estimated pixel_center position
-        shift = (N.array(array_center)-N.array(pixel_center))
+        shift = (np.array(array_center)-np.array(pixel_center))
         #Clement: shift workaround
         tempPSF = U.shift2D_workaround(PSF,shift)
 #         U.nd.shift(PSF, shift=shift, output=tempPSF, order=3, mode="wrap")
@@ -674,27 +673,27 @@ def ResizePSF(PSF, new_shape, pixel_center=None, fill=0.):
 
         if len(new_shape) == 2:
 
-            edge_length = N.floor(N.sqrt(tempPSF.shape)).astype(N.int)
+            edge_length = np.floor(np.sqrt(tempPSF.shape)).astype(np.int)
             y_edge_range = [edge_length[-2], tempPSF.shape[-2]-edge_length[-2]]
             x_edge_range = [edge_length[-1], tempPSF.shape[-1]-edge_length[-1]]
-            loweroffset = N.floor((N.array(new_shape) - \
-                    N.array(tempPSF.shape))/2.).astype(N.int)
-            upperoffset = N.abs(N.floor((N.array(tempPSF.shape) - \
-                    N.array(new_shape))/2.).astype(N.int))
-            PSFout = N.zeros(new_shape, dtype=PSF.dtype) + fill
+            loweroffset = np.floor((np.array(new_shape) - \
+                    np.array(tempPSF.shape))/2.).astype(np.int)
+            upperoffset = np.abs(np.floor((np.array(tempPSF.shape) - \
+                    np.array(new_shape))/2.).astype(np.int))
+            PSFout = np.zeros(new_shape, dtype=PSF.dtype) + fill
             PSFout[loweroffset[-2]:(new_shape[-2]-upperoffset[-2]),
                     loweroffset[-1]:(new_shape[-1]-upperoffset[-1])] = tempPSF
         elif len(new_shape) ==3:
 
-            edge_length = N.floor(N.sqrt(tempPSF.shape)).astype(N.int)
+            edge_length = np.floor(np.sqrt(tempPSF.shape)).astype(np.int)
             z_edge_range = [edge_length[-3], tempPSF.shape[-3]-edge_length[-3]]
             y_edge_range = [edge_length[-2], tempPSF.shape[-2]-edge_length[-2]]
             x_edge_range = [edge_length[-1], tempPSF.shape[-1]-edge_length[-1]]
-            loweroffset = N.floor((N.array(new_shape) - \
-                    N.array(tempPSF.shape))/2.).astype(N.int)
-            upperoffset = N.abs(N.floor((N.array(tempPSF.shape) - \
-                    N.array(new_shape))/2.).astype(N.int))    
-            PSFout = N.zeros(new_shape, dtype=PSF.dtype) + fill
+            loweroffset = np.floor((np.array(new_shape) - \
+                    np.array(tempPSF.shape))/2.).astype(np.int)
+            upperoffset = np.abs(np.floor((np.array(tempPSF.shape) - \
+                    np.array(new_shape))/2.).astype(np.int))    
+            PSFout = np.zeros(new_shape, dtype=PSF.dtype) + fill
             PSFout[loweroffset[-3]:(new_shape[-3]-upperoffset[-3]),
                     loweroffset[-2]:(new_shape[-2]-upperoffset[-2]), \
                     loweroffset[-1]:(new_shape[-1]-upperoffset[-1])] = tempPSF
@@ -718,7 +717,7 @@ def ResizePSF(PSF, new_shape, pixel_center=None, fill=0.):
 ####    [checked]
 def CleanPSF(PSF, clean=(1,1,1,1), center=None, exclude_radius=5, delta=0.3,
         background_percent=0., nsigmas=0., threshold_percent=1e-3,
-        threshold_value=None, fill=0., dtype=N.float64):   
+        threshold_value=None, fill=0., dtype=np.float64):   
     """
     Returns a cleaned-up version of a normalized PSF image for use in AIDA.
     Note that this function assumes that these images have been pre-processed
@@ -734,7 +733,7 @@ def CleanPSF(PSF, clean=(1,1,1,1), center=None, exclude_radius=5, delta=0.3,
     """
 
     dimension = PSF.ndim
-    shape = N.array(PSF.shape)
+    shape = np.array(PSF.shape)
         
     if len(PSF.shape) == 3 and PSF.shape[-3] == 1:
     
@@ -837,18 +836,18 @@ def RemoveBadPSFpixels(PSF, center=None, exclude_radius=5, delta=0.3):
         new_center = (0,)*PSF.ndim
     elif center == 'array_center':
     
-        new_center = tuple(N.array(PSF.shape)/2)
+        new_center = tuple(np.array(PSF.shape)/2)
     else:
     
         new_center = tuple(center)
 
     threshold = (1. + delta)*PSF_mf
 
-    outliers = N.asarray(N.where(PSF > threshold))
+    outliers = np.asarray(np.where(PSF > threshold))
     
     if outliers.shape[-1] > 0:
     
-        dist2 = N.sum((N.transpose(outliers) - new_center)**2, -1)
+        dist2 = np.sum((np.transpose(outliers) - new_center)**2, -1)
         exclude_radius2 = exclude_radius**2
         PSFout = PSF.copy()
 
@@ -899,16 +898,16 @@ def SubtractPSFbackground(PSF, background_percent=0., nsigmas=0.):
  #                     "from your PSF in cleaning step"
  #           print message
  #           print U.mmms(PSF)
- #           print nsigmas*N.sqrt(N.pi/2)
- #           print U.mmms(PSF - nsigmas*N.sqrt(N.pi/2))
- #           return (PSF - nsigmas*N.sqrt(N.pi/2))
+ #           print nsigmas*np.sqrt(np.pi/2)
+ #           print U.mmms(PSF - nsigmas*np.sqrt(np.pi/2))
+ #           return (PSF - nsigmas*np.sqrt(np.pi/2))
             return (PSF)
         else:
             
-            neg_pixels = N.extract(N.less_equal(PSF, 0), PSF)
+            neg_pixels = np.extract(np.less_equal(PSF, 0), PSF)
             ## take the mean, ignoring the extreme most points
-            mean_neg_pixels = (N.sort(neg_pixels)[1:-1]).mean()
-            sigma = N.sqrt(0.5*N.pi*(mean_neg_pixels*mean_neg_pixels))
+            mean_neg_pixels = (np.sort(neg_pixels)[1:-1]).mean()
+            sigma = np.sqrt(0.5*np.pi*(mean_neg_pixels*mean_neg_pixels))
 
             if PSF.max() > nsigmas*sigma:
 
@@ -941,7 +940,7 @@ def ThresholdPSF_inplace(PSF, threshold_percent, threshold_value=None, fill=0.):
 
     now changes PSF in-place
     old version:   Returns:
-    old version:   N.where(PSF < threshold_value, fill, PSF)
+    old version:   np.where(PSF < threshold_value, fill, PSF)
     """
     
     if threshold_value is None:
@@ -966,7 +965,7 @@ def NormalizePSF(PSF):
     
     return (PSF / normalization)
     """
-    normalization = float(N.sum(PSF.flat))
+    normalization = float(np.sum(PSF.flat))
         
     if normalization <= 0.:
         
@@ -974,7 +973,7 @@ def NormalizePSF(PSF):
         ## cause sum of PSF to be negative
         
         normalization = float(
-                N.sum((PSF - (normalization/len(PSF.flat)) - 1.).flat))
+                np.sum((PSF - (normalization/len(PSF.flat)) - 1.).flat))
         
     return (PSF / normalization)
 ####
@@ -995,12 +994,12 @@ def PSF2OTF(PSF, OTF_threshold_percent=1e-5, fill=0., fullFT=False):
         message = "\nPSF must be 2d or 3d!"
         raise RuntimeError, message
 
-    if PSF.dtype.type in (N.int32, N.int64, N.float32):
+    if PSF.dtype.type in (np.int32, np.int64, np.float32):
     
-        dtype = N.complex64
-    elif PSF.dtype.type == N.float64:
+        dtype = np.complex64
+    elif PSF.dtype.type == np.float64:
     
-        dtype = N.complex128
+        dtype = np.complex128
     
     else:   
         message = "\n'dtype' of 'PSF' is not correct!"
@@ -1008,10 +1007,10 @@ def PSF2OTF(PSF, OTF_threshold_percent=1e-5, fill=0., fullFT=False):
 
     if fullFT:
     
-        OTF = N.empty(shape=PSF.shape, dtype=dtype)
+        OTF = np.empty(shape=PSF.shape, dtype=dtype)
     else:
 
-        OTF = N.empty(shape=(PSF.shape[:-1]+(PSF.shape[-1]/2 + 1,)), 
+        OTF = np.empty(shape=(PSF.shape[:-1]+(PSF.shape[-1]/2 + 1,)), 
                 dtype=dtype)
     
         fftw.rfft(a=PSF, af=OTF, inplace=False)
@@ -1041,10 +1040,10 @@ def CleanRealOTF(realOTF, cutoff_radius=None, OTF_threshold_percent=1e-5,
     ## clean up outside a circle (2D) or cylinder (3D)
     ## assumes realOTF is a single 2D array, a stack of 2D arrays, or
     ## a single 3D array
-    OTFout = N.where(RadialArray(realOTF.shape, lambda r:r, origin=0., 
+    OTFout = np.where(RadialArray(realOTF.shape, lambda r:r, origin=0., 
             wrap=(1,0)) > cutoff_radius, fill, realOTF) #@
 
-    return N.where(N.abs(OTFout) < OTF_threshold_percent*OTFout.flat[0], fill,
+    return np.where(np.abs(OTFout) < OTF_threshold_percent*OTFout.flat[0], fill,
             OTFout)
 ####
 
@@ -1062,11 +1061,11 @@ def FitOTFzero(OTF, npoints=20): # used in 'AIDA_Functions.py'
     
     if OTF.ndim == 2:
     
-        radialMTF = RadiallyAverage2D(N.abs(OTF), FT=True, origin=None, 
+        radialMTF = RadiallyAverage2D(np.abs(OTF), FT=True, origin=None, 
                 wrap=(False,), subtract_background=False, fill=0.)[0]
     else:
 
-        radialMTF = RadiallyAverage3D(N.abs(OTF), FT=True, origin=None, 
+        radialMTF = RadiallyAverage3D(np.abs(OTF), FT=True, origin=None, 
                 wrap=(False,), subtract_background=False, fill=0.)[0]
         radialMTF = RadiallyAverage2D(radialMTF, FT=True, origin=None, 
                 wrap=(False,), subtract_background=True, fill=0.)[0]
@@ -1078,7 +1077,7 @@ def FitOTFzero(OTF, npoints=20): # used in 'AIDA_Functions.py'
     
     if intercept < radialMTF[1]: # zero-pt fit intercept is below next point
                                  # try other fits, choose closest larger value
-        test = N.empty(shape=(3,), dtype=N.float)
+        test = np.empty(shape=(3,), dtype=np.float)
         test[0] = U.fitPoly(radialMTF[1:npoints], (1,-1,-1,-1,-1))[0][0]
                 # quartic
         test[1] = U.fitPoly(radialMTF[1:npoints], (1,-1,-1))[0][0] # quadratic
@@ -1086,7 +1085,7 @@ def FitOTFzero(OTF, npoints=20): # used in 'AIDA_Functions.py'
     
         try:
         
-            intercept = N.extract(test > radialMTF[1], test).min()
+            intercept = np.extract(test > radialMTF[1], test).min()
         except:
         
             intercept = radialMTF[1]*1.01
@@ -1118,12 +1117,12 @@ def RadiallyAverage2D(array, FT=True, origin=None, wrap=(False,),
     
         array.shape = (1,) + array.shape
     
-    if array.dtype.type in (N.int32, N.int64, N.float32, N.float64):
+    if array.dtype.type in (np.int32, np.int64, np.float32, np.float64):
     
-        dtype = N.float32
+        dtype = np.float32
     else:
     
-        dtype = N.complex64
+        dtype = np.complex64
     
     if FT:
         
@@ -1138,10 +1137,10 @@ def RadiallyAverage2D(array, FT=True, origin=None, wrap=(False,),
             wrap = (True,)*array.ndim
     elif origin is None:
     
-        origin = N.array(array.shape)/2
+        origin = np.array(array.shape)/2
         wrap = wrap*array.ndim
     
-    ## N.B.  use a 2D distance_array for _averaging_ even for 3D data (~PSF)
+    ## np.B.  use a 2D distance_array for _averaging_ even for 3D data (~PSF)
     ## since z-direction averaging should be handled differently and averaged 
     ## across the xy-plane.  This distance_array should have the same shape as
     ## the array input
@@ -1154,39 +1153,39 @@ def RadiallyAverage2D(array, FT=True, origin=None, wrap=(False,),
     ## background noise statistics of MTF
     for slice in array:
 
-        array_background += (N.extract(distance_array > array.shape[-2]/2.+1,
+        array_background += (np.extract(distance_array > array.shape[-2]/2.+1,
                 slice)).mean()
 
     array_background /= array.shape[-3]
 
     length_z = array.shape[-3]
-    length = N.array(array.shape[-2:]).max()
-    radial_mD = N.zeros(shape=((length_z,) + (length,)), dtype=dtype)
-    radial_nD = N.zeros(shape=array.shape, dtype=dtype)
+    length = np.array(array.shape[-2:]).max()
+    radial_mD = np.zeros(shape=((length_z,) + (length,)), dtype=dtype)
+    radial_nD = np.zeros(shape=array.shape, dtype=dtype)
 
     for z in range(length_z):
         
         radial_mD[z] = AverageRadially(array[z], origin=origin, wrap=wrap[-2:])
                 #@
         radial_nD[z] = RadialArray(array.shape[-2:], 
-                lambda r:radial_mD[z][N.round(r).astype(N.int)], origin=origin,
+                lambda r:radial_mD[z][np.round(r).astype(np.int)], origin=origin,
                 wrap=wrap[-2:]) #@
                 
     ## set all values outside of length cutoff or less than array_background
     ## to floor value
     if subtract_background:
 
-        radial_nD = N.where(N.abs(radial_nD) > 0, 
+        radial_nD = np.where(np.abs(radial_nD) > 0, 
                 radial_nD - array_background, fill)
-        radial_mD = N.where(N.abs(radial_mD) > 0, 
+        radial_mD = np.where(np.abs(radial_mD) > 0, 
                 radial_mD - array_background, fill)
 
     if length_z == 1:
         
         #seb radial_mD.resize(length)
         #seb radial_nD.nd.resize(array.shape[-2:])
-        radial_mD = N.resize(radial_mD, length)
-        radial_nD  = N.resize(radial_nD, array.shape[-2:])
+        radial_mD = np.resize(radial_mD, length)
+        radial_nD  = np.resize(radial_nD, array.shape[-2:])
             
     return (radial_mD[...,:round(array.shape[-2]/2)+1], radial_nD, array_background)
 ####
@@ -1252,13 +1251,13 @@ def AverageRadially(array, origin=0., wrap=(True,)):
     distance_array = RadialArray(array.shape, lambda r:r, origin=origin, 
             wrap=wrap[-2:])
     
-    nbins = N.array(array.shape).max()
-    histogram = N.empty(shape=nbins, dtype=array.dtype)
+    nbins = np.array(array.shape).max()
+    histogram = np.empty(shape=nbins, dtype=array.dtype)
     ## uses Sebastian Haase's general histogram functions
     frequency = U.histogram(distance_array, nBins=nbins, amin=0, amax=nbins)
     ## to prevent division by zero
-    eps = 1./N.product(array.shape)
-    frequency = N.where(frequency==0, eps, frequency)
+    eps = 1./np.product(array.shape)
+    frequency = np.where(frequency==0, eps, frequency)
         
     histogram = U.generalhistogram(distance_array, array, nBins=nbins, amin=0,
             amax=nbins)
@@ -1280,7 +1279,7 @@ def RadialArray(shape, lambda_function, origin=0., wrap=(True,)):
 
     if len(wrap) == 1:
     
-        wrap = N.ones(shape=len(shape)) * wrap[0]
+        wrap = np.ones(shape=len(shape)) * wrap[0]
     elif len(wrap) > len(shape):
     
         message = "\n'wrap' needs to be a list of True or False values " + \
@@ -1295,12 +1294,12 @@ def RadialArray(shape, lambda_function, origin=0., wrap=(True,)):
         
     if origin is None:
 
-        origin = N.array(shape) / 2.
+        origin = np.array(shape) / 2.
     else:
 
         try:
 
-            origin = N.ones(shape=len(shape)) * float(origin)
+            origin = np.ones(shape=len(shape)) * float(origin)
         except:
 
             pass
@@ -1315,28 +1314,28 @@ def RadialArray(shape, lambda_function, origin=0., wrap=(True,)):
         x0 = origin
         nx = shape[-1]
 
-        return N.fromfunction(
+        return np.fromfunction(
                 lambda x: lambda_function(
-                WrapIt(N.abs(x-x0), nx, wrap[-1])), shape, dtype=N.float32) #@
+                WrapIt(np.abs(x-x0), nx, wrap[-1])), shape, dtype=np.float32) #@
     elif len(shape) == 2:
 
         (y0, x0) = origin
         (ny, nx) = shape
         
-        return N.fromfunction(
-                lambda y,x: lambda_function(N.sqrt((
+        return np.fromfunction(
+                lambda y,x: lambda_function(np.sqrt((
                 WrapIt((x-x0), nx, wrap[-1]))**2 + \
-                (WrapIt((y-y0), ny, wrap[-2]))**2) ), shape, dtype=N.float32) #@
+                (WrapIt((y-y0), ny, wrap[-2]))**2) ), shape, dtype=np.float32) #@
     elif len(shape) == 3:
 
         (z0, y0, x0) = origin
         (nz, ny, nx) = shape
 
-        return N.fromfunction(
-                lambda z,y,x: lambda_function(N.sqrt(
+        return np.fromfunction(
+                lambda z,y,x: lambda_function(np.sqrt(
                 (WrapIt((x-x0), nx, wrap[-1]))**2 + \
                 (WrapIt((y-y0), ny, wrap[-2]))**2 + \
-                (WrapIt((z-z0), nz, wrap[-3]))**2) ), shape, dtype=N.float32) #@
+                (WrapIt((z-z0), nz, wrap[-3]))**2) ), shape, dtype=np.float32) #@
     else:
 
         message = "\nSorry - only works for arrays with dimension <= 3!"
@@ -1354,7 +1353,7 @@ def WrapIt(q, nq, wrap):
     
     if wrap:
 
-        return N.where(q > nq/2, q-nq, q)
+        return np.where(q > nq/2, q-nq, q)
     else:
 
         return q
@@ -1406,7 +1405,7 @@ def Output2File(data_array, filebase, format, hdr=None, shape=None):
         #
         #dtype = data_array.dtype
         #
-        #temp = Mrc.bindArr(filebase + '.mrc', data_array.astype(N.float32))
+        #temp = Mrc.bindArr(filebase + '.mrc', data_array.astype(np.float32))
         ## can only write out as single precision
         #fileheader = temp.Mrc.hdrArray[0]
         #fileheader.setfield('NumTitles',1)
@@ -1489,14 +1488,14 @@ def Output2File(data_array, filebase, format, hdr=None, shape=None):
         #print data_array.min()
         #print data_array.max()
         #print data_array.mean()
-        rescaled = N.where(data_array > min, data_array-min, 0.)
+        rescaled = np.where(data_array > min, data_array-min, 0.)
         if ((max - min) == 0):
             message = "\nMax Min problem in outputting array!  Cannot write JPEG file\n"
             print(message)
         else:
             rescaled *= (255.0 / (max - min))
             # Clement: we don't need to save the jpeg
-            # im = ImageOps.flip(Image.fromarray(rescaled.astype(N.uint8)))
+            # im = ImageOps.flip(Image.fromarray(rescaled.astype(np.uint8)))
             # rescale and flip vertically to properly register image with FITS output
             # im.save(filebase + '.jpeg')
 ####
@@ -1504,7 +1503,7 @@ def Output2File(data_array, filebase, format, hdr=None, shape=None):
 
 #######  FUNCTION: LoadFile  #######
 ####    [checked]
-def LoadFile(filename, dtype=N.float64): # used by 'AIDA_Functions.py'
+def LoadFile(filename, dtype=np.float64): # used by 'AIDA_Functions.py'
 
     if os.path.isfile(filename) != 1:
 
@@ -1533,8 +1532,8 @@ def LoadFile(filename, dtype=N.float64): # used by 'AIDA_Functions.py'
         
         im = Image.open(filename)
         
-        data_tmp = N.asarray(im).astype(dtype).copy() + 0.000001
-        data = data_tmp.astype(N.float64)
+        data_tmp = np.asarray(im).astype(dtype).copy() + 0.000001
+        data = data_tmp.astype(np.float64)
         import matplotlib.pyplot as plt
         #plt.figure()
         #plt.imshow(data)
@@ -1568,8 +1567,8 @@ def LoadFile(filename, dtype=N.float64): # used by 'AIDA_Functions.py'
             raise RuntimeError(message)
     
     ## compress data if one of the axes is of dimension size 1
-    shape = N.array(data.shape)
-    data.shape = tuple(N.compress(shape > 1, shape))
+    shape = np.array(data.shape)
+    data.shape = tuple(np.compress(shape > 1, shape))
 
     return (data, hdr)
 ####
@@ -1647,7 +1646,7 @@ def PickFiles(directory, prefix='psf', suffix='.fits'):
 
 #######  FUNCTION: ResizeImage  #######
 ####    [checked]
-def ResizeImage(image, dimension=2, zresize=False, dtype=N.float64):
+def ResizeImage(image, dimension=2, zresize=False, dtype=np.float64):
     # used in 'AIDA_Functions.py'
     """
     Resizes (crops or pads) images so that dimensions are set to the closest
@@ -1656,8 +1655,8 @@ def ResizeImage(image, dimension=2, zresize=False, dtype=N.float64):
     Returns: new_image
     """
     
-    size = N.array((4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048))
-    shape = tuple(N.compress(N.array(image.shape) > 1, N.array(image.shape)))
+    size = np.array((4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048))
+    shape = tuple(np.compress(np.array(image.shape) > 1, np.array(image.shape)))
 
     if len(shape) < dimension:
     
@@ -1670,28 +1669,28 @@ def ResizeImage(image, dimension=2, zresize=False, dtype=N.float64):
         raise RuntimeError(message)
     
     image.shape = shape
-    new_shape = N.array(shape)
-    new_shape[-2] = size[ U.findMin(N.abs(shape[-2] - size))[-1] ]
-    new_shape[-1] = size[ U.findMin(N.abs(shape[-1] - size))[-1] ]
+    new_shape = np.array(shape)
+    new_shape[-2] = size[ U.findMin(np.abs(shape[-2] - size))[-1] ]
+    new_shape[-1] = size[ U.findMin(np.abs(shape[-1] - size))[-1] ]
         
     if dimension == 3 and zresize:
         
-        new_shape[-3] = size[ U.findMin(N.where((shape[-3] - size) >= 0,
+        new_shape[-3] = size[ U.findMin(np.where((shape[-3] - size) >= 0,
                 (shape[-3] - size), 9999999))[-1] + 1 ]     ## round up 
 
-    offset = (N.array(shape) - N.array(new_shape))/2.
-    new_image = N.empty(shape=tuple(N.maximum(shape, new_shape)), dtype=dtype)
-    lower = N.empty(shape=(dimension,), dtype=N.int)
-    upper = N.empty(shape=(dimension,), dtype=N.int)
+    offset = (np.array(shape) - np.array(new_shape))/2.
+    new_image = np.empty(shape=tuple(np.maximum(shape, new_shape)), dtype=dtype)
+    lower = np.empty(shape=(dimension,), dtype=np.int)
+    upper = np.empty(shape=(dimension,), dtype=np.int)
     
     for i in range(1,dimension+1):
     
-        lower[-i] = int(N.floor(N.abs(offset[-i])))
-        upper[-i] = lower[-i] + N.minimum(shape[-i], new_shape[-i])
+        lower[-i] = int(np.floor(np.abs(offset[-i])))
+        upper[-i] = lower[-i] + np.minimum(shape[-i], new_shape[-i])
         
         if offset[-i] > 0:      ## crop
         
-            image = N.take(image, indices=list(range(lower[-i], upper[-i])),
+            image = np.take(image, indices=list(range(lower[-i], upper[-i])),
                     axis=-i)    
     
     if dimension == 2:
@@ -1711,11 +1710,11 @@ def ResizeImage(image, dimension=2, zresize=False, dtype=N.float64):
         
         if offset[-i] > 0:
         
-            new_image = N.take(new_image, indices=list(range(lower[-i],
+            new_image = np.take(new_image, indices=list(range(lower[-i],
                     lower[-i] + new_shape[-i])), axis=-i)
         else:
         
-            new_image = N.take(new_image, indices=list(range(0, \
+            new_image = np.take(new_image, indices=list(range(0, \
                     new_shape[-i])), axis=-i)
 
     return new_image
@@ -1724,7 +1723,7 @@ def ResizeImage(image, dimension=2, zresize=False, dtype=N.float64):
 
 #######  FUNCTION: SelectKernel  #######
 ####    [checked]
-def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
+def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=np.float64):
     # used in 'AIDA_Functions.py'
     """
     Returns the appropriate 'kernel' for use in calculating the gradient
@@ -1755,12 +1754,12 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
 
             if shift == -1:
 
-                kernel = N.array(( ((0.,0.,0.), (0.,rho,0.), (0.,-rho,0.)), 
+                kernel = np.array(( ((0.,0.,0.), (0.,rho,0.), (0.,-rho,0.)), 
                         ((0.,0.,0.), (0.,rho,-rho), (0.,0.,0.)) ), dtype=dtype)
                         # (y,x)
             elif shift == +1:
 
-                kernel = N.array(( ((0.,-rho,0.), (0.,rho,0.), (0.,0.,0.)), 
+                kernel = np.array(( ((0.,-rho,0.), (0.,rho,0.), (0.,0.,0.)), 
                         ((0.,0.,0.), (-rho,rho,0.), (0.,0.,0.)) ), dtype=dtype)
                         # (y,x)
         elif operator == 'symmetric':
@@ -1769,25 +1768,25 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
             
             if shift == -1:
 
-                kernel = N.array(( ((0.,a,0.), (0.,0.,0.), (0.,-a,0.)), 
+                kernel = np.array(( ((0.,a,0.), (0.,0.,0.), (0.,-a,0.)), 
                         ((0.,0.,0.), (a,0.,-a), (0.,0.,0.)) ), dtype=dtype)
             elif shift == +1:
 
-                kernel = N.array(( ((0.,-a,0.), (0.,0.,0.), (0.,a,0.)), 
+                kernel = np.array(( ((0.,-a,0.), (0.,0.,0.), (0.,a,0.)), 
                         ((0.,0.,0.), (-a,0.,a), (0.,0.,0.)) ), dtype=dtype)
         elif operator == 'FC':
 
-            a = 1./(2. + (N.sqrt(2.)*rho) )
-            a_sqrt2 = a*N.sqrt(2.)*rho
+            a = 1./(2. + (np.sqrt(2.)*rho) )
+            a_sqrt2 = a*np.sqrt(2.)*rho
 
             if shift == -1:
 
-                kernel = N.array(( ((a,a_sqrt2,a), (0.,0.,0.),
+                kernel = np.array(( ((a,a_sqrt2,a), (0.,0.,0.),
                         (-a,-a_sqrt2,-a)), ((a,0.,-a), (a_sqrt2,0.,-a_sqrt2),
                         (a,0.,-a)) ), dtype=dtype)
             elif shift == +1:
 
-                kernel = N.array(( ((-a,-a_sqrt2,-a), (0.,0.,0.),
+                kernel = np.array(( ((-a,-a_sqrt2,-a), (0.,0.,0.),
                         (a,a_sqrt2,a)), ((-a,0.,a), (-a_sqrt2,0.,a_sqrt2),
                         (-a,0.,a)) ), dtype=dtype)
         elif operator == 'laplacian':
@@ -1795,17 +1794,17 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
             if shift == 1:
 
                 a = -1./(4.*rho)
-                kernel = N.array(( (0.,a,0.), (a,1.,a), (0.,a,0.) ),
+                kernel = np.array(( (0.,a,0.), (a,1.,a), (0.,a,0.) ),
                         dtype=dtype)
             elif shift == 2:
 
                 a = -1./(8.*rho)
-                kernel = N.array(( (a,a,a), (a,1.,a), (a,a,a) ), dtype=dtype)
+                kernel = np.array(( (a,a,a), (a,1.,a), (a,a,a) ), dtype=dtype)
             elif shift == 3:
 
                 a = -1./(4 + (8*rho) )
                 b = 2.*rho*a
-                kernel = N.array(( (a,b,a), (b,1.,b), (a,b,a) ), dtype=dtype)
+                kernel = np.array(( (a,b,a), (b,1.,b), (a,b,a) ), dtype=dtype)
             else:
 
                 message = "\n'laplacian_operator' must be 0, 1, 2, or 3!"
@@ -1817,7 +1816,7 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
 
             if shift == -1:
 
-                kernel = N.array(( (((0.,0.,0.),(0.,0.,0.),(0.,0.,0.)),  ## k_z
+                kernel = np.array(( (((0.,0.,0.),(0.,0.,0.),(0.,0.,0.)),  ## k_z
                                 ((0.,0.,0.),(0.,zeta*rho,0.), (0.,0.,0.)),
                                 ((0.,0.,0.),(0.,-zeta*rho,0.),(0.,0.,0))),
                               (((0.,0.,0.),(0.,0.,0.),(0.,0.,0)),       ## k_y
@@ -1829,7 +1828,7 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
                                 dtype=dtype)
             elif shift == +1:
 
-                kernel = N.array(( (((0.,0.,0.),(0.,-zeta*rho,0.),(0.,0.,0.)),
+                kernel = np.array(( (((0.,0.,0.),(0.,-zeta*rho,0.),(0.,0.,0.)),
                                                                         ## k_z
                                 ((0.,0.,0.),(0.,zeta*rho,0.), (0.,0.,0.)),
                                 ((0.,0.,0.),(0.,0.,0.),(0.,0.,0))),
@@ -1846,7 +1845,7 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
             
             if shift == -1:
                                                                         ## k_z
-                kernel = N.array(( (((0.,0.,0.),(0.,zeta*a,0.),(0.,0.,0.)),    
+                kernel = np.array(( (((0.,0.,0.),(0.,zeta*a,0.),(0.,0.,0.)),    
                                 ((0.,0.,0.),(0.,0.,0.), (0.,0.,0.)),
                                 ((0.,0.,0.),(0.,-zeta*a,0.),(0.,0.,0))),
                               (((0.,0.,0.),(0.,0.,0.),(0.,0.,0)),       ## k_y
@@ -1858,7 +1857,7 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
                                 dtype=dtype)
             elif shift == +1:
                                                                         ## k_z
-                kernel = N.array(( (((0.,0.,0.),(0.,-zeta*a,0.),(0.,0.,0.)), 
+                kernel = np.array(( (((0.,0.,0.),(0.,-zeta*a,0.),(0.,0.,0.)), 
                                 ((0.,0.,0.),(0.,0.,0.), (0.,0.,0.)),
                                 ((0.,0.,0.),(0.,zeta*a,0.),(0.,0.,0))),
                               (((0.,0.,0.),(0.,0.,0.),(0.,0.,0)),       ## k_y
@@ -1870,12 +1869,12 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
                                 dtype=dtype)
         elif operator == 'FC':
 
-            a = 1./(2. + (N.sqrt(2.)*rho) )
-            a_sqrt2 = a*N.sqrt(2.)*rho
+            a = 1./(2. + (np.sqrt(2.)*rho) )
+            a_sqrt2 = a*np.sqrt(2.)*rho
 
             if shift == -1:
 
-                kernel = N.array(( (((0.,zeta*a,0.),(0.,zeta*a_sqrt2,0.),
+                kernel = np.array(( (((0.,zeta*a,0.),(0.,zeta*a_sqrt2,0.),
                                             (0.,zeta*a,0)),             ## k_z
                                 ((0.,0.,0.),(0.,0.,0.), (0.,0.,0.)),
                                 ((0.,-zeta*a,0.),(0.,-zeta*a_sqrt2,0.),
@@ -1889,7 +1888,7 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
                                 dtype=dtype)
             elif shift == +1:
 
-                kernel = N.array(( (((0.,-zeta*a,0.),(0.,-zeta*a_sqrt2,0.),
+                kernel = np.array(( (((0.,-zeta*a,0.),(0.,-zeta*a_sqrt2,0.),
                                             (0.,-zeta*a,0)),            ## k_z
                                 ((0.,0.,0.),(0.,0.,0.), (0.,0.,0.)),
                                 ((0.,zeta*a,0.),(0.,zeta*a_sqrt2,0.),
@@ -1905,14 +1904,14 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
 
             if shift == 1:
                 a = -1./((4.+zeta*2.)*rho)
-                kernel = N.array(( ((0.,0.,0.), (0.,zeta*a,0.), (0.,0.,0.)),
+                kernel = np.array(( ((0.,0.,0.), (0.,zeta*a,0.), (0.,0.,0.)),
                             ((0.,a,0.), (a,1.,a), (0.,a,0.)),
                             ((0.,0.,0.,), (0.,zeta*a,0.), (0.,0.,0.)) ), 
                             dtype=dtype)
             elif shift == 2:
 
                 a = -1./((22.+zeta*2.)*rho)
-                kernel = N.array(( ((a,a,a), (a,zeta*a,a), (a,a,a)), 
+                kernel = np.array(( ((a,a,a), (a,zeta*a,a), (a,a,a)), 
                             ((a,a,a), (a,1.,a), (a,a,a)),
                             ((a,a,a), (a,zeta*a,a), (a,a,a)) ), dtype=dtype)
             elif shift == 3:
@@ -1920,7 +1919,7 @@ def SelectKernel(dimension, operator, shift, rho=1., zeta=3., dtype=N.float64):
                 ## original normalization: a = -1./32.
                 a = -1./(16.*(1+zeta)*rho)
                 b = 2.*a
-                kernel = N.array(( ((a,a,a), (a,zeta*b,a), (a,a,a)), 
+                kernel = np.array(( ((a,a,a), (a,zeta*b,a), (a,a,a)), 
                             ((zeta*a,zeta*b,zeta*a), (zeta*b,1.,zeta*b), 
                                     (zeta*a,zeta*b,zeta*a)),
                             ((a,a,a), (a,zeta*b,a), (a,a,a)) ), dtype=dtype)
@@ -1948,12 +1947,12 @@ def WienerFilter(IMAGE, OTF, weight): # used in 'AIDA_Functions.py'
 
     fullshape = IMAGE.shape[:-1] + ((IMAGE.shape[-1]-1)*2,)
 
-    if IMAGE.dtype == N.complex128:
+    if IMAGE.dtype == np.complex128:
     
-        filtered = N.empty(shape=fullshape, dtype=N.float64)
-    elif IMAGE.dtype == N.complex64:
+        filtered = np.empty(shape=fullshape, dtype=np.float64)
+    elif IMAGE.dtype == np.complex64:
     
-        filtered = N.empty(shape=fullshape, dtype=N.float32)
+        filtered = np.empty(shape=fullshape, dtype=np.float32)
     else:
     
         message = "\n'IMAGE' must be complex dtype!"
@@ -1963,9 +1962,9 @@ def WienerFilter(IMAGE, OTF, weight): # used in 'AIDA_Functions.py'
     
         OTF = OTF.astype(IMAGE.dtype)
 
-    conjOTF = N.conjugate(OTF)
+    conjOTF = np.conjugate(OTF)
     fftw.irfft(af=( (conjOTF*IMAGE / (conjOTF*OTF + weight)) / \
-            N.product(fullshape)), a=filtered, inplace=False, copy=False)
+            np.product(fullshape)), a=filtered, inplace=False, copy=False)
 
     return filtered
 ####
@@ -1990,22 +1989,22 @@ def WienerFilterReal(image, PSF, weight):
     halfshape = image.shape[:-1] + (image.shape[-1]/2 + 1,)
     fullshape = image.shape
         
-    if image.dtype.type == N.float64:
+    if image.dtype.type == np.float64:
     
-        IMAGE = N.empty(shape=halfshape, dtype=N.complex128)
-    elif image.dtype.type == N.float32:
+        IMAGE = np.empty(shape=halfshape, dtype=np.complex128)
+    elif image.dtype.type == np.float32:
     
-        IMAGE = N.empty(shape=halfshape, dtype=N.complex64)
-    elif image.dtype.type in (N.int32, N.uint32, N.int64, N.uint64):
+        IMAGE = np.empty(shape=halfshape, dtype=np.complex64)
+    elif image.dtype.type in (np.int32, np.uint32, np.int64, np.uint64):
     
-        image = image.astype(N.float32)
-        IMAGE = N.empty(shape=halfshape, dtype=N.complex64)
+        image = image.astype(np.float32)
+        IMAGE = np.empty(shape=halfshape, dtype=np.complex64)
     else:
     
         message = "\n'image' must be an array of numbers!"
         raise ValueError, message
 
-    filtered = N.empty(shape=image.shape, dtype=image.dtype)
+    filtered = np.empty(shape=image.shape, dtype=image.dtype)
 
     if image.dtype != PSF.dtype:
     
@@ -2013,9 +2012,9 @@ def WienerFilterReal(image, PSF, weight):
     
     fftw.rfft(a=image, af=IMAGE, inplace=False)
     OTF = PSF2OTF(PSF, OTF_threshold_percent=1e-5, fill=0., fullFT=False)
-    conjOTF = N.conjugate(OTF)
+    conjOTF = np.conjugate(OTF)
     fftw.irfft(af=( (conjOTF*IMAGE / (conjOTF*OTF + weight)) / \
-            N.product(fullshape)), a=filtered, inplace=False, copy=False)
+            np.product(fullshape)), a=filtered, inplace=False, copy=False)
 
     return filtered
 ####
@@ -2032,7 +2031,7 @@ def SetEdgeValues(data, ndim, value=0):
 
     axes = list(range(1, data.ndim)) + [0]    
 
-    for dimension in range(ndim):       ## N.B. first transpose starts
+    for dimension in range(ndim):       ## np.B. first transpose starts
                                         ## positions at fastest index
         data.transpose(axes)
         data[0]=data[-1]=value
@@ -2050,7 +2049,7 @@ def Num2Str(num, digits=5): # used in 'AIDA_Functions.py'
     form = '%.' + str(int(digits)) + 'g'
 
     if type(num) in (int, float) or isinstance(num, 
-            N.number):
+            np.number):
     
         basestr = form %num
         split = str.split(basestr, '.')
@@ -2130,7 +2129,7 @@ def Num2Str(num, digits=5): # used in 'AIDA_Functions.py'
 '''unused seb 20091118
 ######  FUNCTION: ComputeVarianceMean  #######
 ####
-def ComputeMeanVariance(x, data_dim=None, dtype=N.float32, conjugate=False):
+def ComputeMeanVariance(x, data_dim=None, dtype=np.float32, conjugate=False):
         ## used in 'AIDA_Functions.py'
     """
     Returns variance and mean of a sequence 'x' along the slowest axis 
@@ -2139,20 +2138,20 @@ def ComputeMeanVariance(x, data_dim=None, dtype=N.float32, conjugate=False):
     Uses 'data_dim' to make sure sequence has more than 1 slice
     """
 
-    x = N.asarray(x)
+    x = np.asarray(x)
     
     if x.ndim == 0:     # if single integer
     
         return (x, 0)
     elif x.ndim == data_dim:
     
-        return (x, N.sqrt(x))      # return variance = poisson noise
+        return (x, np.sqrt(x))      # return variance = poisson noise
     else:
     
         n = 0
-        mean = N.zeros(shape=x.shape[-x.ndim+1:], dtype=dtype)
-        delta = N.zeros(shape=x.shape[-x.ndim+1:], dtype=dtype)
-        S = N.zeros(shape=x.shape[-x.ndim+1:], dtype=dtype)
+        mean = np.zeros(shape=x.shape[-x.ndim+1:], dtype=dtype)
+        delta = np.zeros(shape=x.shape[-x.ndim+1:], dtype=dtype)
+        S = np.zeros(shape=x.shape[-x.ndim+1:], dtype=dtype)
     
         if conjugate:       ## use for complex 'x' to generate power spectral
                             ## density instead of the straight variance     
@@ -2161,7 +2160,7 @@ def ComputeMeanVariance(x, data_dim=None, dtype=N.float32, conjugate=False):
                 n += 1
                 delta = p - mean
                 mean += delta / n
-                S += delta * N.conjugate(delta)
+                S += delta * np.conjugate(delta)
         else:
         
             for p in x:
@@ -2190,14 +2189,14 @@ def ComputeMeanVariance3(x):
     
     if x.ndim == 1:
     
-        shape = (int(N.round(N.log(n)/N.log(2)) + 1),)
+        shape = (int(np.round(np.log(n)/np.log(2)) + 1),)
     else:
 
-        shape = (int(N.round(N.log(n)/N.log(2)) + 1),) + x.shape[-x.ndim+1:]
+        shape = (int(np.round(np.log(n)/np.log(2)) + 1),) + x.shape[-x.ndim+1:]
 
-    terms = N.zeros(shape=shape[0], dtype=N.int)
-    sum_pair = N.zeros(shape=shape, dtype=N.float64)
-    S_pair = N.zeros(shape=shape, dtype=N.float64)
+    terms = np.zeros(shape=shape[0], dtype=np.int)
+    sum_pair = np.zeros(shape=shape, dtype=np.float64)
+    S_pair = np.zeros(shape=shape, dtype=np.float64)
     
     terms[0] = 0
     top = 1
@@ -2265,7 +2264,7 @@ def l(dtype=None):
 
     if dtype is None:
     
-        return LoadFile(FN(), N.float64)[0]
+        return LoadFile(FN(), np.float64)[0]
     else:
     
         return LoadFile(FN(), dtype)[0]
@@ -2284,8 +2283,8 @@ def ArrayCenter2Origin(array2D):
         message = "\nSorry - works only for 2D arrays at the moment!"
         raise RuntimeError, message
     
-    (y0, x0) = N.array(shape)/2
-    newarray = N.empty(shape=shape, dtype=array2D.dtype)
+    (y0, x0) = np.array(shape)/2
+    newarray = np.empty(shape=shape, dtype=array2D.dtype)
     
     newarray[0:y0, 0:x0] = array2D[y0:, x0:]
     newarray[y0:, 0:x0] = array2D[0:y0, x0:]
@@ -2307,8 +2306,8 @@ def Origin2ArrayCenter(array2D):
         message = "\nSorry - works only for 2D arrays at the moment!"
         raise RuntimeError(message)
     
-    (y0, x0) = N.array(shape)/2
-    newarray = N.empty(shape=shape, dtype=array2D.dtype)
+    (y0, x0) = np.array(shape)/2
+    newarray = np.empty(shape=shape, dtype=array2D.dtype)
     
     newarray[y0:, x0:] = array2D[0:y0, 0:x0]
     newarray[0:y0, x0:] = array2D[y0:, 0:x0]
@@ -2330,8 +2329,8 @@ def ArrayCenter2Origin(array2D):
         message = "\nSorry - works only for 2D arrays at the moment!"
         raise RuntimeError(message)
     
-    (y0, x0) = N.array(shape)/2
-    newarray = N.empty(shape=shape, dtype=array2D.dtype)
+    (y0, x0) = np.array(shape)/2
+    newarray = np.empty(shape=shape, dtype=array2D.dtype)
     
     newarray[0:y0, 0:x0] = array2D[y0:, x0:]
     newarray[y0:, 0:x0] = array2D[0:y0, x0:]
@@ -2356,7 +2355,7 @@ def realFT2fullFT(rFT):     ## used in 'AIDA_Functions.py'
             message = "\nrFT array must be of an even shaped array!"
             raise RuntimeError(message)
 
-    temp = N.empty(shape=(rFT.shape[:-1] + (rFT.shape[-1]-2,)), 
+    temp = np.empty(shape=(rFT.shape[:-1] + (rFT.shape[-1]-2,)), 
             dtype=rFT.dtype)
 
     if rFT.ndim == 2:
@@ -2378,7 +2377,7 @@ def realFT2fullFT(rFT):     ## used in 'AIDA_Functions.py'
         message = "\nSorry, rFT must be ndim 2 or 3!"
         raise RuntimeError(message)
         
-    return N.concatenate((rFT[...,:rFT.shape[-1]], temp), axis=-1)
+    return np.concatenate((rFT[...,:rFT.shape[-1]], temp), axis=-1)
 ####
 
 
@@ -2402,7 +2401,7 @@ def fullFT2realFT(fFT):
 ####    [checked]
 def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
         Nimages=1, snr=[10], snr_type='Ivar', dimension=2, format='f',
-        output_dtype= N.int16):
+        output_dtype= np.int16):
     
     if os.path.isdir(directory):
 
@@ -2426,14 +2425,14 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
     shape = true_object.shape
     realFFTshape = shape[:-1] + (shape[-1]/2+1,)
 
-    scale = 1./N.product(shape)
+    scale = 1./np.product(shape)
 
     ## normalize PSF
-    #true_PSF /= float(N.sum(true_PSF.flat))
+    #true_PSF /= float(np.sum(true_PSF.flat))
 
-    OBJECT = N.empty(shape=realFFTshape, dtype=N.complex128)
-    noiseless_image = N.empty(shape=shape, dtype=N.float64)
-    fftw.rfft(a=true_object.astype(N.float64), af=OBJECT, inplace=False)
+    OBJECT = np.empty(shape=realFFTshape, dtype=np.complex128)
+    noiseless_image = np.empty(shape=shape, dtype=np.float64)
+    fftw.rfft(a=true_object.astype(np.float64), af=OBJECT, inplace=False)
     OTF = PSF2OTF(true_PSF, OTF_threshold_percent=1e-5, fill=0., fullFT=False)
     fftw.irfft(af=(OBJECT*OTF*scale), a=noiseless_image, inplace=False,
             copy=False)
@@ -2450,14 +2449,14 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
         for j in range(Nimages):
     
             # add poisson noise first
-            image = N.where(noiseless_image<=0, 0, N_random_array.poisson(
+            image = np.where(noiseless_image<=0, 0, N_random_array.poisson(
                     mean=noiseless_image)).astype(output_dtype)
     
             # then add gaussian noise based on snr input
             if snr_type == 'Imax':
         
                 # snr = Imax/sqrt(<w>)
-                if snr[i] > Imax/N.sqrt(Iave):
+                if snr[i] > Imax/np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2465,7 +2464,7 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
                     raise RuntimeError, message 
         
                 flag = 'Imax'
-                std = N.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
+                std = np.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
                 image += N_random_array.normal(mean=0., std=std,
                         shape=image.shape)
             elif snr_type == 'Ivar':
@@ -2479,14 +2478,14 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
                     raise RuntimeError, message 
     
                 flag = 'Ivar'   
-                std = N.sqrt((Istd**2)/snr[i] - Iave)
+                std = np.sqrt((Istd**2)/snr[i] - Iave)
                                                     # ~Bertero & Boccacci p. 53
                 image += N_random_array.normal(mean=0., std=std,
                         shape=image.shape)
             elif snr_type == 'Bert':
         
                 # snr = 10*log10((Istd**2)/<w>)     
-                if snr[i] > 10*N.log10((Istd**2)/Iave):
+                if snr[i] > 10*np.log10((Istd**2)/Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2494,14 +2493,14 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
                     raise RuntimeError, message 
         
                 flag = 'Bert'
-                std = N.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
+                std = np.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
                                                     # Bertero & Boccacci p. 53
                 image += N_random_array.normal(mean=0., std=std,
                         shape=image.shape)
             elif snr_type == 'Iave':
 
                 # snr = Iave/sqrt(<w>)
-                if snr[i] > N.sqrt(Iave):
+                if snr[i] > np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2509,7 +2508,7 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
                     raise RuntimeError, message 
 
                 flag = 'Iave'
-                std = N.sqrt((Iave/snr[i])**2 - Iave)
+                std = np.sqrt((Iave/snr[i])**2 - Iave)
                                                     # ~CCD Eq of Howell p.54
                 image += N_random_array.normal(mean=0., std=std,
                         shape=image.shape)
@@ -2553,7 +2552,7 @@ def GenMonoImageDataSet(filebase, true_object, true_PSF, directory='.',
 ####    [checked]
 def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
         Npsfs=20, snr=[5], snr_type='Ivar', length=1024, format='f',
-        output_dtype=N.int16):
+        output_dtype=np.int16):
 
     if os.path.isdir(directory):
 
@@ -2563,7 +2562,7 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
         message = "\n'directory' provided is not a valid directory path!"
         raise ValueError, message
         
-    sigma = fwhm / (2*N.sqrt(2*N.log(2)))
+    sigma = fwhm / (2*np.sqrt(2*np.log(2)))
     noiseless_PSF = F.gaussianArr(shape=(length,length), sigma=sigma, 
             integralScale=None, peakVal=peakVal, orig=None) 
     Output2File(format=format, data_array=noiseless_PSF,
@@ -2579,14 +2578,14 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
         for j in range(Npsfs):
 
             # add poisson noise first   
-            PSF = N.where(noiseless_PSF<=0, 0, N_random_array.poisson( 
+            PSF = np.where(noiseless_PSF<=0, 0, N_random_array.poisson( 
                     mean=noiseless_PSF)).astype(output_dtype)
     
             # then add gaussian noise based on snr input
             if snr_type == 'Imax':
         
                 # snr = Imax/sqrt(<w>)
-                if snr[i] > Imax/N.sqrt(Iave):
+                if snr[i] > Imax/np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2594,7 +2593,7 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
                     raise RuntimeError, message 
         
                 flag = 'Imax'
-                std = N.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
+                std = np.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
                 PSF += N_random_array.normal(mean=0., std=std, \
                         shape=PSF.shape)
             elif snr_type == 'Ivar':
@@ -2608,14 +2607,14 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
                     raise RuntimeError, message 
     
                 flag = 'Ivar'   
-                std = N.sqrt((Istd**2)/snr[i] - Iave)
+                std = np.sqrt((Istd**2)/snr[i] - Iave)
                                                     # ~Bertero & Boccacci p. 53
                 PSF += N_random_array.normal(mean=0., std=std, \
                         shape=PSF.shape)
             elif snr_type == 'Bert':
 
                 # snr = 10*log10((Istd**2)/<w>)     
-                if snr[i] > 10*N.log10((Istd**2)/Iave):
+                if snr[i] > 10*np.log10((Istd**2)/Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2623,7 +2622,7 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
                     raise RuntimeError, message 
         
                 flag = 'Bert'
-                std = N.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
+                std = np.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
                                                     # Bertero & Boccacci p. 53
                 PSF += N_random_array.normal(mean=0., std=std, \
                         shape=PSF.shape)
@@ -2638,7 +2637,7 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
                     raise RuntimeError, message 
 
                 flag = 'Iave'
-                std = N.sqrt((Iave/snr[i])**2 - Iave)
+                std = np.sqrt((Iave/snr[i])**2 - Iave)
                                                     # ~CCD Eq of Howell p.54
             elif snr_type == 'Astr':
 
@@ -2679,7 +2678,7 @@ def Gen2DGaussPSFs(filebase='psf2D', directory='.', fwhm=4, peakVal=10000,
 ####    [checked]
 def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
         peakVal=10000, Npsfs=20, snr=[5], snr_type='Ivar', length=1024,
-        format='f', output_dtype=N.int16):
+        format='f', output_dtype=np.int16):
 
     if os.path.isdir(directory):
 
@@ -2690,7 +2689,7 @@ def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
         raise ValueError, message
 
     rfwhm = N_random_array.normal(mean=fwhm, std=sig_fwhm)
-    sigma = rfwhm / (2*N.sqrt(2*N.log(2)))
+    sigma = rfwhm / (2*np.sqrt(2*np.log(2)))
     rand_noiseless_PSF = F.gaussianArr(shape=(length,length), sigma=sigma,
             integralScale=None, peakVal=peakVal, orig=None) 
     Output2File(format=format, data_array=rand_noiseless_PSF,
@@ -2707,20 +2706,20 @@ def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
         for j in range(Npsfs):
 
             rfwhm = N_random_array.normal(mean=fwhm, std=sig_fwhm)
-            sigma = rfwhm / (2*N.sqrt(2*N.log(2)))
+            sigma = rfwhm / (2*np.sqrt(2*np.log(2)))
             noiseless_PSF = F.gaussianArr(shape=(length,length), sigma=sigma,
                     integralScale=None, peakVal=peakVal, orig=None) 
             (Imin, Imax, Iave, Istd) = U.mmms(noiseless_PSF)
 
             # add poisson noise first   
-            PSF = N.where(noiseless_PSF<=0, 0, N_random_array.poisson(
+            PSF = np.where(noiseless_PSF<=0, 0, N_random_array.poisson(
                     mean=noiseless_PSF)).astype(output_dtype)
     
             # then add gaussian noise based on snr input
             if snr_type == 'Imax':
         
                 # snr = Imax/sqrt(<w>)
-                if snr[i] > Imax/N.sqrt(Iave):
+                if snr[i] > Imax/np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2728,7 +2727,7 @@ def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
                     raise RuntimeError, message 
         
                 flag = 'Imax'
-                std = N.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
+                std = np.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
                 PSF += N_random_array.normal(mean=0., std=std,
                         shape=PSF.shape)
             elif snr_type == 'Ivar':
@@ -2742,14 +2741,14 @@ def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
                     raise RuntimeError, message 
     
                 flag = 'Ivar'   
-                std = N.sqrt((Istd**2)/snr[i] - Iave)
+                std = np.sqrt((Istd**2)/snr[i] - Iave)
                                                     # ~Bertero & Boccacci p. 53
                 PSF += N_random_array.normal(mean=0., std=std,
                         shape=PSF.shape)
             elif snr_type == 'Bert':
 
                 # snr = 10*log10((Istd**2)/<w>)     
-                if snr[i] > 10*N.log10((Istd**2)/Iave):
+                if snr[i] > 10*np.log10((Istd**2)/Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -2757,7 +2756,7 @@ def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
                     raise RuntimeError, message 
         
                 flag = 'Bert'
-                std = N.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
+                std = np.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
                                                     # Bertero & Boccacci p. 53
                 PSF += N_random_array.normal(mean=0., std=std,
                         shape=PSF.shape)
@@ -2772,7 +2771,7 @@ def Gen2DAberGaussPSFs(filebase='psf2D', directory='.', fwhm=4, sig_fwhm=1,
                     raise RuntimeError, message 
 
                 flag = 'Iave'
-                std = N.sqrt((Iave/snr[i])**2 - Iave)
+                std = np.sqrt((Iave/snr[i])**2 - Iave)
                                                     # ~CCD Eq of Howell p.54
             elif snr_type == 'Astr':
 
@@ -2821,7 +2820,7 @@ def GenPupil2PSF(shape=(256,256), PSF_radius=4, zernike_mode=[0],
         
     for i in (-2, -1):
     
-        if N.remainder(shape[i], 2) != 0:
+        if np.remainder(shape[i], 2) != 0:
         
             raise RuntimeError, "shape in xy must be even!"
         
@@ -2834,119 +2833,119 @@ def GenPupil2PSF(shape=(256,256), PSF_radius=4, zernike_mode=[0],
         raise ValueError, "list lengths of 'zernike_mode' and " + \
                 "'zernike_coef' do not match!" 
 
-    coPSF = N.empty(shape=shape, dtype=N.complex128)
-    PSF = N.zeros(shape=shape, dtype=N.float64)
-    scale = 1./N.product(shape[:2])
-    (ny, nx) = N.array(shape[-2:])/2
+    coPSF = np.empty(shape=shape, dtype=np.complex128)
+    PSF = np.zeros(shape=shape, dtype=np.float64)
+    scale = 1./np.product(shape[:2])
+    (ny, nx) = np.array(shape[-2:])/2
 
     if len(shape) == 2:
     
         pupil_radius = shape[-1]/float(2.*PSF_radius)
         pupil_aperture = F.zzernikeArr(shape=shape, no=0, crop=1,
-                radius=pupil_radius, orig=None).astype(N.float64)
-        phase = N.zeros(shape=shape, dtype=N.float64)
+                radius=pupil_radius, orig=None).astype(np.float64)
+        phase = np.zeros(shape=shape, dtype=np.float64)
         
         for i in range(len(zernike_mode)):
             
             phase += zernike_coef[i] * F.zzernikeArr(shape=shape, 
                     no=zernike_mode[i], crop=1, radius=pupil_radius, 
-                    orig=None) * 2*N.pi
+                    orig=None) * 2*np.pi
     
-        fftw.ifft(af=(scale*pupil_aperture*N.exp(1j*phase)), a=coPSF, 
+        fftw.ifft(af=(scale*pupil_aperture*np.exp(1j*phase)), a=coPSF, 
                 inplace=False)
         
         ## shift to array origin
-        PSF[0:ny, 0:nx] = N.abs(coPSF[ny:, nx:])**2
-        PSF[0:ny, nx:] = N.abs(coPSF[ny:, 0:nx])**2
-        PSF[ny:, 0:nx] = N.abs(coPSF[0:ny, nx:])**2
-        PSF[ny:, nx:] = N.abs(coPSF[0:ny, 0:nx])**2
+        PSF[0:ny, 0:nx] = np.abs(coPSF[ny:, nx:])**2
+        PSF[0:ny, nx:] = np.abs(coPSF[ny:, 0:nx])**2
+        PSF[ny:, 0:nx] = np.abs(coPSF[0:ny, nx:])**2
+        PSF[ny:, nx:] = np.abs(coPSF[0:ny, 0:nx])**2
 
     elif len(shape) == 3:
 
         (nZ, nY, nX) = shape
-        (nz, ny, nx) = N.array(shape)/2
+        (nz, ny, nx) = np.array(shape)/2
         inv_nZ = 1./nZ
         inv_nY = 1./nY
         inv_nX = 1./nX
         pupil_radius = shape[-1]/float(2.*PSF_radius)
         pupil_aperture = F.zzernikeArr(shape=(nY,nX), no=0, crop=1,
-                radius=pupil_radius, orig=None).astype(N.float64)
-        phase = N.zeros(shape=shape[-2:], dtype=N.float64)
+                radius=pupil_radius, orig=None).astype(np.float64)
+        phase = np.zeros(shape=shape[-2:], dtype=np.float64)
         Y.view(pupil_aperture)
         
         for i in range(len(zernike_mode)):
             
             phase += zernike_coef[i] * F.zzernikeArr(shape=shape[-2:],
                     no=zernike_mode[i], crop=1, radius=pupil_radius,
-                    orig=None) * 2*N.pi
+                    orig=None) * 2*np.pi
         
-        pupil_function = pupil_aperture*N.exp(1j*phase)
-        coPSF = N.empty(shape=shape, dtype=N.complex128)
+        pupil_function = pupil_aperture*np.exp(1j*phase)
+        coPSF = np.empty(shape=shape, dtype=np.complex128)
         rad2 = kappa*kappa + 2
         zextent = (shape[-3])/2
         
         def kz(ky, kx):
 
-            return pupil_radius * N.where(ky <= nY/2, N.where(kx <= nX/2, \
-                    (N.sqrt(rad2 - \
+            return pupil_radius * np.where(ky <= nY/2, np.where(kx <= nX/2, \
+                    (np.sqrt(rad2 - \
                                 (kx*inv_nX)**2 - (ky*inv_nY)**2)), \
                                                             # ky, kx
-                    (N.sqrt(rad2 - \
+                    (np.sqrt(rad2 - \
                                 (kx*inv_nX - 1)**2 - (ky*inv_nY)**2)) ), \
                                                             # ky, kx-nX
-                    N.where(kx <= nX/2,
-                            (N.sqrt(rad2 - \
+                    np.where(kx <= nX/2,
+                            (np.sqrt(rad2 - \
                             (kx*inv_nX)**2 - (ky*inv_nY - 1)**2)), \
                                                             # ky-nY, kx
-                            (N.sqrt(rad2 - \
+                            (np.sqrt(rad2 - \
                             (kx*inv_nX - 1)**2 - (ky*inv_nY - 1)**2)) ) )
                                                             # ky-nY, kx-nX
 
-        kz_zero_centered = 2j*N.pi*N.fromfunction(kz, (nY, nX))
-        kz_array_centered = N.empty(shape=(nY, nX), dtype=N.complex128)
+        kz_zero_centered = 2j*np.pi*np.fromfunction(kz, (nY, nX))
+        kz_array_centered = np.empty(shape=(nY, nX), dtype=np.complex128)
         ## assumes array in xy is even!
         kz_array_centered[0:ny, 0:nx] = kz_zero_centered[ny:, nx:]
         kz_array_centered[0:ny, nx:] = kz_zero_centered[ny:, 0:nx]
         kz_array_centered[ny:, 0:nx] = kz_zero_centered[0:ny, nx:]
         kz_array_centered[ny:, nx:] = kz_zero_centered[0:ny, 0:nx]
 
-        zrange = N.arange(shape[-3]) - zextent
+        zrange = np.arange(shape[-3]) - zextent
 
         # SHOULD REPLACE BELOW WITH ARRAY MULTIPLICATION APPROACH TO SAVE
         # TIME ON FOR LOOP?  NEED TO PROFILE AND SEE WHERE THE MAJOR COST
         # IS IN COMPUTING COPSF
         for z in zrange:
         
-            zfactor = N.exp(kz_array_centered*float(z))            
+            zfactor = np.exp(kz_array_centered*float(z))            
             fftw.ifft(af=(scale*pupil_function*zfactor), a=coPSF[z], \
                     inplace=False)
 
         if nz == 0:
         
-            PSF[:, 0:ny, 0:nx] = N.abs(coPSF[:, ny:, nx:])**2
-            PSF[:, 0:ny, nx:] = N.abs(coPSF[:, ny:, 0:nx])**2
-            PSF[:, ny:, 0:nx] = N.abs(coPSF[:, 0:ny, nx:])**2
-            PSF[:, ny:, nx:] = N.abs(coPSF[:, 0:ny, 0:nx])**2
-            PSF[:, 0:ny, 0:nx] = N.abs(coPSF[:, ny:, nx:])**2
-            PSF[:, 0:ny, nx:] = N.abs(coPSF[:, ny:, 0:nx])**2
-            PSF[:, ny:, 0:nx] = N.abs(coPSF[:, 0:ny, nx:])**2
-            PSF[:, ny:, nx:] = N.abs(coPSF[:, 0:ny, 0:nx])**2
+            PSF[:, 0:ny, 0:nx] = np.abs(coPSF[:, ny:, nx:])**2
+            PSF[:, 0:ny, nx:] = np.abs(coPSF[:, ny:, 0:nx])**2
+            PSF[:, ny:, 0:nx] = np.abs(coPSF[:, 0:ny, nx:])**2
+            PSF[:, ny:, nx:] = np.abs(coPSF[:, 0:ny, 0:nx])**2
+            PSF[:, 0:ny, 0:nx] = np.abs(coPSF[:, ny:, nx:])**2
+            PSF[:, 0:ny, nx:] = np.abs(coPSF[:, ny:, 0:nx])**2
+            PSF[:, ny:, 0:nx] = np.abs(coPSF[:, 0:ny, nx:])**2
+            PSF[:, ny:, nx:] = np.abs(coPSF[:, 0:ny, 0:nx])**2
         else:
         
-            PSF[0:nz, 0:ny, 0:nx] = N.abs(coPSF[nz:, ny:, nx:])**2
-            PSF[0:nz, 0:ny, nx:] = N.abs(coPSF[nz:, ny:, 0:nx])**2
-            PSF[0:nz, ny:, 0:nx] = N.abs(coPSF[nz:, 0:ny, nx:])**2
-            PSF[0:nz, ny:, nx:] = N.abs(coPSF[nz:, 0:ny, 0:nx])**2
-            PSF[nz:, 0:ny, 0:nx] = N.abs(coPSF[0:nz, ny:, nx:])**2
-            PSF[nz:, 0:ny, nx:] = N.abs(coPSF[0:nz, ny:, 0:nx])**2
-            PSF[nz:, ny:, 0:nx] = N.abs(coPSF[0:nz, 0:ny, nx:])**2
-            PSF[nz:, ny:, nx:] = N.abs(coPSF[0:nz, 0:ny, 0:nx])**2
+            PSF[0:nz, 0:ny, 0:nx] = np.abs(coPSF[nz:, ny:, nx:])**2
+            PSF[0:nz, 0:ny, nx:] = np.abs(coPSF[nz:, ny:, 0:nx])**2
+            PSF[0:nz, ny:, 0:nx] = np.abs(coPSF[nz:, 0:ny, nx:])**2
+            PSF[0:nz, ny:, nx:] = np.abs(coPSF[nz:, 0:ny, 0:nx])**2
+            PSF[nz:, 0:ny, 0:nx] = np.abs(coPSF[0:nz, ny:, nx:])**2
+            PSF[nz:, 0:ny, nx:] = np.abs(coPSF[0:nz, ny:, 0:nx])**2
+            PSF[nz:, ny:, 0:nx] = np.abs(coPSF[0:nz, 0:ny, nx:])**2
+            PSF[nz:, ny:, nx:] = np.abs(coPSF[0:nz, 0:ny, 0:nx])**2
 
     else:
     
         raise ValueError, "shape must be 2D or 3D!"
 
-    return PSF/N.sum(PSF.flat)
+    return PSF/np.sum(PSF.flat)
 ####
 
 
@@ -2955,7 +2954,7 @@ def GenPupil2PSF(shape=(256,256), PSF_radius=4, zernike_mode=[0],
 def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
         aber_zern_modes=[1,2,3], zern_coef_mean=[0,0,0],
         zern_coef_sigma=[0.2,0.2,0.2], Imax=1000, snr=[50], 
-        snr_type='Ivar', format='f', kappa=3, output_dtype=N.int16):
+        snr_type='Ivar', format='f', kappa=3, output_dtype=np.int16):
 
     if directory:
     
@@ -2979,14 +2978,14 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
         message = "\n'zern_coef_sigma' does not match length of 'aber_zern_modes'!"
         raise ValueError, message
 
-    noiseless_PSF = N.empty(shape=(Npsfs,)+shape, dtype=N.float32)
-    PSF = N.empty(shape=(Npsfs,)+shape, dtype=N.float32)
+    noiseless_PSF = np.empty(shape=(Npsfs,)+shape, dtype=np.float32)
+    PSF = np.empty(shape=(Npsfs,)+shape, dtype=np.float32)
     
     for i in range(Npsfs):
     
 #       noiseless_PSF[i] = GenPupil2PSF(shape=shape, \
 #               PSF_radius=PSF_radius, \
-#               zernike_mode=tuple(N.arange(0,total_zern_modes+1)), \
+#               zernike_mode=tuple(np.arange(0,total_zern_modes+1)), \
 #               zernike_coef=tuple(N_random_array.normal(0, \
 #               std=zern_coef_sigma, shape=[total_zern_modes + 1])) )
 
@@ -3031,9 +3030,9 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
             (Imin, Imax, Iave, Istd) = U.mmms(noiseless_PSF[j])
             #print (Imin, Imax, Iave, Istd)
             
-            #median = N.sort(noiseless_PSF[j].flat)[len(noiseless_PSF[j].flat)/2]
-            #test1 = N.compress(noiseless_PSF[j] > median, noiseless_PSF[j])
-            #test2 = N.compress(noiseless_PSF[j] > Iave, noiseless_PSF[j])
+            #median = np.sort(noiseless_PSF[j].flat)[len(noiseless_PSF[j].flat)/2]
+            #test1 = np.compress(noiseless_PSF[j] > median, noiseless_PSF[j])
+            #test2 = np.compress(noiseless_PSF[j] > Iave, noiseless_PSF[j])
             #print U.mmms(test1)
             #print U.mmms(test2)
 
@@ -3044,7 +3043,7 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
             if snr_type == 'Imax':
         
                 # snr = Imax/sqrt(<w>)
-                if snr[i] > Imax/N.sqrt(Iave):
+                if snr[i] > Imax/np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -3052,7 +3051,7 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
                     raise RuntimeError, message 
         
                 flag = 'Imax'
-                std = N.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
+                std = np.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
                 PSF[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSF[j].shape)
             elif snr_type == 'Ivar':
@@ -3066,14 +3065,14 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
                     raise RuntimeError, message 
     
                 flag = 'Ivar'   
-                std = N.sqrt((Istd**2)/snr[i] - Iave)
+                std = np.sqrt((Istd**2)/snr[i] - Iave)
                                                     # ~Bertero & Boccacci p. 53
                 PSF[j] += N_random_array.normal(mean=0., std=std, \
                         shape=PSF[j].shape)
             elif snr_type == 'Bert':
 
                 # snr = 10*log10((Istd**2)/<w>)     
-                if snr[i] > 10*N.log10((Istd**2)/Iave):
+                if snr[i] > 10*np.log10((Istd**2)/Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -3081,14 +3080,14 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
                     raise RuntimeError, message 
         
                 flag = 'Bert'
-                std = N.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
+                std = np.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
                                                     # Bertero & Boccacci p. 53
                 PSF[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSF[j].shape)
             elif snr_type == 'Iave':
 
                 # snr = Iave/sqrt(<w>)
-                if snr[i] > N.sqrt(Iave):
+                if snr[i] > np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -3096,7 +3095,7 @@ def GenAberZernPSFs(directory=None, shape=(256,256), Npsfs=20, PSF_radius=4,
                     raise RuntimeError, message 
 
                 flag = 'Iave'
-                std = N.sqrt((Iave/snr[i])**2 - Iave)
+                std = np.sqrt((Iave/snr[i])**2 - Iave)
                                                     # ~CCD Eq of Howell p.54
                 PSF[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSF[j].shape)
@@ -3175,14 +3174,14 @@ def PlotLogRadialFourierProfile(array, new=1, normalize_flag=1, c="-"):
 
         if normalize_flag:
 
-            r1d = RadiallyAverage2D(array=N.log10(N.abs( 
-                    F.fft2d(array[i]/N.sum(array[i].flat)))), FT=True, 
+            r1d = RadiallyAverage2D(array=np.log10(np.abs( 
+                    F.fft2d(array[i]/np.sum(array[i].flat)))), FT=True, 
                     origin=None, wrap=(False,), subtract_background=False,
                     fill=0.)
         else:
         
-            r1d = RadiallyAverage2D(array=N.log10(N.abs( 
-                    F.fft2d(array[i]/N.sum(array[i].flat)))), FT=True, 
+            r1d = RadiallyAverage2D(array=np.log10(np.abs( 
+                    F.fft2d(array[i]/np.sum(array[i].flat)))), FT=True, 
                     origin=None, wrap=(False,), subtract_background=False,
                     fill=0.)[0] #@
 
@@ -3200,11 +3199,11 @@ def PlotLogRadialFourierProfile(array, new=1, normalize_flag=1, c="-"):
 def PlotRadialFourierProfile(array, normalize_flag=1, c="-"):
 
     if normalize_flag:
-        r1d = RadiallyAverageAboutOrigin(array=(N.abs( 
-                F.fft2d(array/N.sum(array.flat)))), dimensions_to_average=2, 
+        r1d = RadiallyAverageAboutOrigin(array=(np.abs( 
+                F.fft2d(array/np.sum(array.flat)))), dimensions_to_average=2, 
                 floor=0.0, fullFT_flag=1)[0]
     else:
-        r1d = RadiallyAverageAboutOrigin(array=(N.abs( 
+        r1d = RadiallyAverageAboutOrigin(array=(np.abs( 
                 F.fft2d(array))), dimensions_to_average=2, 
                 floor=0.0, fullFT_flag=1)[0]
     Y.ploty(r1d, c=c)
@@ -3234,14 +3233,14 @@ def PlotRadialFourierProfileDiff(ref_array, dirprefix, var_list_order=[],
     
     if normalize_flag:
 
-        true_r1d = RadiallyAverage2D(array=(N.abs( 
-                F.fft2d(ref_array/N.sum(ref_array.flat)))), FT=True, 
+        true_r1d = RadiallyAverage2D(array=(np.abs( 
+                F.fft2d(ref_array/np.sum(ref_array.flat)))), FT=True, 
                 origin=None, wrap=(False,), subtract_background=False,
                 fill=0.)[0]
 
     else:
 
-        true_r1d = RadiallyAverage2D(array=(N.abs(F.fft2d(ref_array))), 
+        true_r1d = RadiallyAverage2D(array=(np.abs(F.fft2d(ref_array))), 
                 FT=True, origin=None, wrap=(False,), subtract_background=False,
                 fill=0.)[0]
 
@@ -3257,22 +3256,22 @@ def PlotRadialFourierProfileDiff(ref_array, dirprefix, var_list_order=[],
         data = LoadFile(file)[0]
         
         array = data
-        #array = N.abs(reference_array - data)
+        #array = np.abs(reference_array - data)
         
         if normalize_flag:
 
-            r1d = RadiallyAverage2D(array=(N.abs( 
-                    F.fft2d(array/N.sum(array.flat)))), FT=True, 
+            r1d = RadiallyAverage2D(array=(np.abs( 
+                    F.fft2d(array/np.sum(array.flat)))), FT=True, 
                     origin=None, wrap=(False,), subtract_background=False,
                     fill=0.)[0]                 
-            diff_r1d = N.abs(r1d-true_r1d)
+            diff_r1d = np.abs(r1d-true_r1d)
 
         else:
 
-            r1d = RadiallyAverage2D(array=(N.abs(F.fft2d(array))), FT=True, 
+            r1d = RadiallyAverage2D(array=(np.abs(F.fft2d(array))), FT=True, 
                     origin=None, wrap=(False,), subtract_background=False,
                     fill=0.)[0]
-            diff_r1d = N.abs(r1d-true_r1d)
+            diff_r1d = np.abs(r1d-true_r1d)
 
         if test == 0:
         
@@ -3288,25 +3287,25 @@ def PlotRadialFourierProfileDiff2(ref_array, array, normalize_flag=1, c='-'):
     
     if normalize_flag:
 
-        true_r1d = RadiallyAverage2D(array=(N.abs( 
-                F.fft2d(ref_array/N.sum(ref_array.flat)))), FT=True, 
+        true_r1d = RadiallyAverage2D(array=(np.abs( 
+                F.fft2d(ref_array/np.sum(ref_array.flat)))), FT=True, 
                 origin=None, wrap=(False,), subtract_background=False,
                 fill=0.)[0]
-        r1d = RadiallyAverage2D(array=(N.abs( 
-                F.fft2d(array/N.sum(array.flat)))), FT=True, 
+        r1d = RadiallyAverage2D(array=(np.abs( 
+                F.fft2d(array/np.sum(array.flat)))), FT=True, 
                 origin=None, wrap=(False,), subtract_background=False,
                 fill=0.)[0]                 
-        diff_r1d = N.abs(r1d-true_r1d)
+        diff_r1d = np.abs(r1d-true_r1d)
 
     else:
 
-        true_r1d = RadiallyAverage2D(array=(N.abs(F.fft2d(ref_array))), 
+        true_r1d = RadiallyAverage2D(array=(np.abs(F.fft2d(ref_array))), 
                 FT=True, origin=None, wrap=(False,), subtract_background=False,
                 fill=0.)[0]
-        r1d = RadiallyAverage2D(array=(N.abs(F.fft2d(array))), FT=True, 
+        r1d = RadiallyAverage2D(array=(np.abs(F.fft2d(array))), FT=True, 
                 origin=None, wrap=(False,), subtract_background=False,
                 fill=0.)[0]
-        diff_r1d = N.abs(r1d-true_r1d)
+        diff_r1d = np.abs(r1d-true_r1d)
 
     Y.ploty(diff_r1d, c=c)
 #####
@@ -3315,7 +3314,7 @@ def PlotRadialFourierProfileDiff2(ref_array, array, normalize_flag=1, c='-'):
 ######  FUNCTION: GenAberZernPSFs  #######
 ####    [checked]
 def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=1000, 
-        snr=[50], snr_type='Ivar', format='f', output_dtype=N.int16):
+        snr=[50], snr_type='Ivar', format='f', output_dtype=np.int16):
 
     if directory:
     
@@ -3329,12 +3328,12 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
 
     shape = originPSF.shape
     #real_shape = shape[:-1] + (shape[-1]/2+1,)
-    PSFs = N.empty(shape=(nn,)+shape, dtype=N.float32)
-    cleanPSFs = N.empty(shape=(nn,)+shape, dtype=N.float32)
-    #OTFs = N.empty(shape=(nn,)+real_shape, dtype=N.complex64)
-    OTFs = N.empty(shape=(nn,)+shape, dtype=N.complex64)
+    PSFs = np.empty(shape=(nn,)+shape, dtype=np.float32)
+    cleanPSFs = np.empty(shape=(nn,)+shape, dtype=np.float32)
+    #OTFs = np.empty(shape=(nn,)+real_shape, dtype=np.complex64)
+    OTFs = np.empty(shape=(nn,)+shape, dtype=np.complex64)
 
-    nPSF = originPSF/N.sum(originPSF.flat)
+    nPSF = originPSF/np.sum(originPSF.flat)
     scaling = Imax/nPSF.max()
     PSF = nPSF*scaling
     
@@ -3352,11 +3351,11 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
         for j in range(nn):
 
             real = U.nd.median_filter(input=N_random_array.normal(mean=0., 
-                    std=stdOTF*N.cos(phase), shape=OTF.shape), size=3, 
+                    std=stdOTF*np.cos(phase), shape=OTF.shape), size=3, 
                     footprint=None, output=None, mode="reflect", cval=0.0, 
                     origin=0)
             imag = U.nd.median_filter(input=N_random_array.normal(mean=0., 
-                    std=stdOTF*N.sin(phase), shape=OTF.shape), size=3, 
+                    std=stdOTF*np.sin(phase), shape=OTF.shape), size=3, 
                     footprint=None, output=None, mode="reflect", cval=0.0, 
                     origin=0)
         
@@ -3373,7 +3372,7 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
                     mode="wrap") 
 
             PSFs[j] = F.ifft2d(OTFs[j])
-            cleanPSFs[j] = N.where(PSFs[j]>0, PSFs[j], 0)
+            cleanPSFs[j] = np.where(PSFs[j]>0, PSFs[j], 0)
             (Imin, Imax, Iave, Istd) = U.mmms(scaling*cleanPSFs[j])
 
             # add poisson noise first
@@ -3384,7 +3383,7 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
             if snr_type == 'Imax':
         
                 # snr = Imax/sqrt(<w>)
-                if snr[i] > Imax/N.sqrt(Iave):
+                if snr[i] > Imax/np.sqrt(Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -3392,7 +3391,7 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
                     raise RuntimeError, message 
         
                 flag = 'Imax'
-                std = N.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
+                std = np.sqrt((Imax/snr[i])**2 - Iave)  # commonly used in astro
                 PSFs[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSFs[j].shape)
             elif snr_type == 'Ivar':
@@ -3406,14 +3405,14 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
                     raise RuntimeError, message 
     
                 flag = 'Ivar'   
-                std = N.sqrt((Istd**2)/snr[i] - Iave)
+                std = np.sqrt((Istd**2)/snr[i] - Iave)
                                                     # ~Bertero & Boccacci p. 53
                 PSFs[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSFs[j].shape)
             elif snr_type == 'Bert':
 
                 # snr = 10*log10((Istd**2)/<w>)     
-                if snr[i] > 10*N.log10((Istd**2)/Iave):
+                if snr[i] > 10*np.log10((Istd**2)/Iave):
             
                     message = "\n'snr' value of " + str(snr[i]) + " is too " + \
                             "high leads to an imaginary standard deviation " + \
@@ -3421,7 +3420,7 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
                     raise RuntimeError, message 
         
                 flag = 'Bert'
-                std = N.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
+                std = np.sqrt((Istd**2)/(10**(snr[i]/10)) - Iave)
                                                     # Bertero & Boccacci p. 53
                 PSFs[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSFs[j].shape)
@@ -3436,7 +3435,7 @@ def Gen2DharmonicOTFNoisyPSFs(originPSF, stdOTF, directory=None, nn=20, Imax=100
                     raise RuntimeError, message 
 
                 flag = 'Iave'
-                std = N.sqrt((Iave/snr[i])**2 - Iave)
+                std = np.sqrt((Iave/snr[i])**2 - Iave)
                                                     # ~CCD Eq of Howell p.54
                 PSFs[j] += N_random_array.normal(mean=0., std=std,
                         shape=PSFs[j].shape)
@@ -3497,10 +3496,10 @@ def sim_v(shape=(128,128), no=[1,2,3], radius=30):
     
         sum += F.zzernikeArr(shape=shape, no=i, crop=1, radius=radius)
     
-    sum=N.abs(sum)
+    sum=np.abs(sum)
     apod = 1 - F.zzernikeArr(shape=shape, no=3, crop=0, radius=radius-2)
     apod /= apod.max()
-    apod = N.where(apod > 0, apod, 0)
+    apod = np.where(apod > 0, apod, 0)
     
     out = ArrayCenter2Origin(apod*sum)
     Y.view(out)
@@ -3514,12 +3513,12 @@ def U__topPercentile(a, percentile):
     workaround for broken Priithon's U.topPercentile():
     always scale a to max 65535 - ignore values < 0
     """
-    #_lastErrSettings = N.seterr(under="ignore")
+    #_lastErrSettings = np.seterr(under="ignore")
     maa = (1<<16) - 1
 
     lower = a.min()
     upper = a.max()
     factor = float(maa)/(float(upper)-lower)
     th = U.topPercentile((U.asFloat32(a)-lower)*factor, percentile)/factor + lower
-    #N.seterr(**_lastErrSettings)
+    #np.seterr(**_lastErrSettings)
     return th
